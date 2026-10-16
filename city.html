@@ -1,0 +1,617 @@
+<html lang="zh-CN"><head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>测测你适合哪座城市 2026</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'PingFang SC','Hiragino Sans GB','Microsoft YaHei',sans-serif;background:#E8E4F2;min-height:100vh;color:#2D2458}
+.page{display:none;min-height:100vh;padding:20px 16px 56px}
+.page.active{display:flex;flex-direction:column;align-items:center;animation:fadeUp .35s ease}
+@keyframes fadeUp{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)}}
+@keyframes pwShake{0%,100%{transform:translateX(0)}25%{transform:translateX(-8px)}75%{transform:translateX(8px)}}
+
+.wrap{width:100%;max-width:520px}
+.wide-wrap{width:100%;max-width:680px}
+
+.icon-box{width:72px;height:72px;border-radius:20px;background:linear-gradient(135deg,#7B68C8,#6B5DB8);display:flex;align-items:center;justify-content:center;font-size:36px;margin:24px auto 16px;box-shadow:0 8px 28px rgba(107,93,184,.35)}
+
+.hero-title{font-size:24px;font-weight:800;color:#2D2458;text-align:center;margin-bottom:6px;line-height:1.3}
+.hero-sub{font-size:12px;color:#9180CC;letter-spacing:3px;font-weight:600;text-align:center;margin-bottom:20px}
+
+.card{background:rgba(255,255,255,.88);border-radius:20px;padding:20px 18px;margin-bottom:16px;box-shadow:0 4px 20px rgba(107,93,184,.1)}
+.card-title{font-size:15px;font-weight:800;color:#6B5DB8;margin-bottom:10px}
+
+.stats-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px}
+.stat-card{background:rgba(255,255,255,.85);border-radius:20px;padding:16px 12px;display:flex;flex-direction:column;align-items:center;gap:4px;box-shadow:0 2px 16px rgba(107,93,184,.1)}
+.stat-icon{font-size:24px}
+.stat-num{font-size:18px;font-weight:800;color:#6B5DB8}
+.stat-desc{font-size:12px;color:#7B73A8}
+
+.info-box{background:rgba(255,255,255,.7);border-radius:16px;padding:14px 18px;margin-bottom:20px;border-left:3px solid #6B5DB8}
+.info-box-title{font-size:13px;font-weight:700;color:#6B5DB8;margin-bottom:6px}
+.info-box-text{font-size:13px;color:#4B4680;line-height:1.6}
+
+.dim-list{display:flex;flex-direction:column;gap:8px}
+.dim-item{display:flex;align-items:flex-start;gap:10px;padding:8px 10px;background:rgba(107,93,184,.05);border-radius:12px}
+.dim-item-icon{font-size:18px;flex-shrink:0;margin-top:1px}
+.dim-item-name{font-size:13px;font-weight:700;color:#6B5DB8}
+.dim-item-desc{font-size:12px;color:#6B6490}
+
+.group-card{background:rgba(255,255,255,.88);border-radius:20px;padding:20px 18px;margin-bottom:24px;box-shadow:0 4px 20px rgba(107,93,184,.1)}
+.group-item{margin-bottom:16px}
+.group-item:last-child{margin-bottom:0}
+.group-item-top{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.group-icon{font-size:18px}
+.group-name{font-size:14px;font-weight:700;color:#2D2458}
+.group-note{font-size:11px;color:#9B94C8;margin-left:auto}
+.city-tag-row{display:flex;flex-wrap:wrap;gap:8px}
+.city-tag{padding:6px 14px;background:#F0EDF8;border-radius:20px;font-size:13px;color:#5A5190}
+
+.category-section{margin-bottom:24px}
+.category-card{background:rgba(255,255,255,.88);border-radius:16px;padding:16px 18px;margin-bottom:12px;box-shadow:0 2px 12px rgba(107,93,184,.08)}
+.category-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+.category-left{display:flex;align-items:center;gap:10px}
+.category-icon{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px}
+.category-icon.money{background:linear-gradient(135deg,#fef3c7,#fde68a)}
+.category-icon.rocket{background:linear-gradient(135deg,#dbeafe,#bfdbfe)}
+.category-icon.coffee{background:linear-gradient(135deg,#d1fae5,#a7f3d0)}
+.category-name{font-size:15px;font-weight:700;color:#2D2458}
+.category-desc{font-size:11px;color:#9B94C8;background:#F5F0FA;padding:4px 10px;border-radius:20px}
+.city-tags{display:flex;flex-wrap:wrap;gap:8px}
+
+.pw-card{background:rgba(255,255,255,.88);border-radius:20px;padding:24px;margin-bottom:20px;box-shadow:0 4px 20px rgba(107,93,184,.1);text-align:center}
+.pw-label{font-size:15px;font-weight:700;color:#6B5DB8;margin-bottom:16px}
+.pw-input{width:100%;text-align:center;font-size:28px;letter-spacing:12px;font-weight:700;padding:14px;border-radius:14px;outline:none;color:#6B5DB8;font-family:inherit;border:2px solid #DDD8EE;background:#fff;transition:border .2s}
+.pw-input:focus{border-color:#7B68C8;box-shadow:0 0 0 3px rgba(123,104,200,.15)}
+.pw-err{color:#EF4444;font-size:13px;margin-top:8px;display:none}
+.pw-hint{font-size:12px;color:#9B94C8;margin-top:10px}
+
+.btn-primary{width:100%;padding:16px;border-radius:16px;border:none;background:linear-gradient(135deg,#7B68C8,#6B5DB8);color:#fff;font-size:18px;font-weight:800;cursor:pointer;box-shadow:0 8px 24px rgba(107,93,184,.4);letter-spacing:2px;font-family:inherit;transition:transform .15s,box-shadow .15s}
+.btn-primary:hover{transform:translateY(-2px);box-shadow:0 10px 28px rgba(107,93,184,.5)}
+.btn-primary:active{transform:translateY(0)}
+.btn-secondary{width:100%;padding:16px;border-radius:16px;border:2px solid #DDD8EE;background:rgba(255,255,255,.9);cursor:pointer;font-size:16px;font-weight:700;color:#5A5190;font-family:inherit;transition:background .15s;margin-bottom:10px}
+.btn-secondary:hover{background:#F0EDF8}
+
+.footer{text-align:center;padding:16px 0 8px;width:100%}
+.footer a{font-size:13px;color:#9B94C8;text-decoration:none;border-bottom:1px solid #C4BCE8;padding-bottom:2px}
+
+.q-header{background:rgba(255,255,255,.82);border-radius:20px;padding:16px 20px;margin-bottom:20px;box-shadow:0 2px 16px rgba(107,93,184,.1);width:100%;max-width:600px}
+.q-meta{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+.q-cat{font-size:13px;font-weight:700;color:#6B5DB8}
+.q-count{font-size:13px;color:#8880B0}
+.q-pct{font-size:13px;font-weight:700;color:#7B68C8}
+.progress-track{height:8px;background:#DDD8EE;border-radius:99px;overflow:hidden}
+.progress-bar{height:100%;background:linear-gradient(90deg,#7B68C8,#6B5DB8);border-radius:99px;transition:width .4s ease}
+
+.q-body{background:rgba(255,255,255,.92);border-radius:24px;padding:28px 24px;margin-bottom:20px;box-shadow:0 4px 24px rgba(107,93,184,.1);width:100%;max-width:600px;transition:opacity .2s}
+.q-text{font-size:20px;font-weight:800;color:#2D2458;margin-bottom:24px;line-height:1.4}
+.opts{display:flex;flex-direction:column;gap:12px}
+.opt{padding:16px 20px;border-radius:16px;border:2px solid #E2DCF5;background:#F7F4FD;cursor:pointer;text-align:left;font-size:15px;color:#4B4680;display:flex;align-items:center;gap:12px;transition:all .15s;font-family:inherit;width:100%}
+.opt:hover{border-color:#7B68C8;background:rgba(123,104,200,.06);transform:translateX(3px)}
+.opt.selected{border-color:#7B68C8;background:rgba(123,104,200,.08);color:#6B5DB8;font-weight:600}
+.opt-radio{font-size:18px;color:#7B68C8;flex-shrink:0;width:20px}
+.q-nav{display:flex;justify-content:space-between;align-items:center;gap:12px;width:100%;max-width:600px}
+.nav-btn{padding:13px 24px;border-radius:14px;border:2px solid #DDD8EE;background:rgba(255,255,255,.85);cursor:pointer;font-size:15px;color:#8880B0;font-family:inherit;transition:opacity .2s}
+.auto-hint{font-size:13px;color:#9B94C8;flex:1;text-align:center;transition:opacity .3s}
+
+.top-card{background:rgba(255,255,255,.95);border-radius:28px;padding:32px 24px 28px;text-align:center;margin-bottom:20px;box-shadow:0 8px 32px rgba(107,93,184,.15);width:100%}
+.top-sub{font-size:13px;color:#7B68C8;font-weight:600;margin-bottom:16px;letter-spacing:1px}
+.top-icon-emoji{font-size:48px;margin-bottom:8px}
+.match-pct{font-size:64px;font-weight:900;background:linear-gradient(135deg,#7B68C8,#6B5DB8);-webkit-background-clip:text;-webkit-text-fill-color:transparent;line-height:1}
+.top-city{font-size:26px;font-weight:900;color:#2D2458;margin:12px 0 4px}
+.top-prov{font-size:13px;color:#9B94C8;margin-bottom:16px}
+.tag-row{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-bottom:10px}
+.tag-chip{background:rgba(107,93,184,.1);color:#6B5DB8;border-radius:20px;padding:4px 14px;font-size:13px;font-weight:600;border:1px solid rgba(107,93,184,.2)}
+.kw-chip{background:rgba(184,169,232,.15);color:#7B68C8;border-radius:20px;padding:4px 14px;font-size:12px;border:1px solid rgba(123,104,200,.2)}
+.match-reason{background:linear-gradient(135deg,rgba(232,228,242,.8),rgba(237,234,245,.6));border-radius:16px;padding:16px 20px;text-align:left;margin-top:16px;border:1px solid rgba(107,93,184,.1)}
+.reason-title{font-size:14px;font-weight:700;color:#6B5DB8;display:block;margin-bottom:8px}
+.reason-text{font-size:14px;color:#4B4680;line-height:1.8;margin:0}
+
+.dim-card{background:rgba(255,255,255,.88);border-radius:24px;padding:24px;margin-bottom:20px;box-shadow:0 4px 16px rgba(107,93,184,.08);width:100%}
+.dim-card-title{font-size:16px;font-weight:800;color:#2D2458;margin-bottom:20px}
+.dim-grid{display:flex;flex-direction:column;gap:12px}
+.dim-row{display:flex;align-items:center;gap:12px}
+.dim-label{font-size:12px;color:#8880B0;width:70px;flex-shrink:0}
+.dim-track{flex:1;height:8px;background:#F3F0FA;border-radius:99px;overflow:hidden}
+.dim-bar{height:100%;background:linear-gradient(90deg,#7B68C8,#6B5DB8);border-radius:99px;transition:width .6s ease}
+.dim-val{font-size:12px;font-weight:700;color:#7B68C8;width:28px;text-align:right;flex-shrink:0}
+
+.others-card{background:rgba(255,255,255,.88);border-radius:24px;padding:24px;margin-bottom:24px;box-shadow:0 4px 16px rgba(107,93,184,.08);width:100%}
+.others-title{font-size:16px;font-weight:800;color:#2D2458;margin-bottom:20px}
+.others-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+@media(max-width:480px){.others-grid{grid-template-columns:1fr}}
+.other-card{border:1px solid #E2DCF5;border-radius:18px;padding:16px 14px;background:#FAF8FF}
+.other-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+.other-name{font-size:16px;font-weight:800;color:#2D2458}
+.other-prov{font-size:12px;color:#9B94C8}
+.other-score{font-size:18px;font-weight:900;color:#7B68C8}
+.other-desc{font-size:12px;color:#6B6490;line-height:1.7;margin-top:10px}
+.tag-chip-sm{background:rgba(107,93,184,.1);color:#6B5DB8;border-radius:20px;padding:3px 10px;font-size:11px;font-weight:600}
+.kw-chip-sm{background:rgba(184,169,232,.12);color:#7B68C8;border-radius:20px;padding:3px 10px;font-size:11px}
+
+.decl-text{font-size:13px;color:#4B4680;line-height:1.8;margin-bottom:16px}
+.decl-text strong{color:#6B5DB8}
+</style>
+</head>
+<body>
+
+<!-- ══════════ PAGE: PASSWORD ══════════ -->
+<div class="page active" id="page-password">
+  <div class="wrap">
+    <div class="icon-box">🔐</div>
+    <h1 class="hero-title">2026城市匹配测试</h1>
+    <p class="hero-sub">CITY SOUL MATCH · 2026</p>
+    <div class="pw-card">
+      <p class="pw-label">🔑 请输入校验码</p>
+      <input type="password" id="pw-input" class="pw-input" maxlength="4" placeholder="••••">
+      <p class="pw-err" id="pw-err">校验码错误，请重试</p>
+      <p class="pw-hint">请输入4位数字校验码</p>
+    </div>
+    <div class="info-box">
+      <p class="info-box-title">ℹ️ 说明</p>
+      <p class="info-box-text">本测验结合性格特质为您匹配最适合的城市，覆盖很多城市，仅供参考。</p>
+    </div>
+    <button class="btn-primary" onclick="checkPwd()">→ 验证并开始</button>
+    <div class="footer"><a href="https://www.xiaohongshu.com/user/profile/66bc6458000000001d023d71?xsec_token=YBb5Z9rDZDYxBs_nibWztCRnxBdS6LgKZm7qWam20VdgQ=&amp;xsec_source=app_share&amp;xhsshare=CopyLink&amp;shareRedId=N0lHMThHSUs2NzUyOTgwNjc1OTpKPUlL&amp;apptime=1769450867&amp;share_id=ae0c789c5c07479d8dfe1624f657f209" target="_blank">📝小红书： 书豪创业笔记</a></div>
+  </div>
+</div>
+
+<!-- ══════════ PAGE: INTRO ══════════ -->
+<div class="page" id="page-intro">
+  <div class="wrap">
+    <div class="icon-box">📍</div>
+    <h1 class="hero-title">你的性格与哪座城市最匹配？</h1>
+    <p class="hero-sub">CITY SOUL MATCH · 2026</p>
+
+    <div class="stats-grid">
+      <div class="stat-card"><span class="stat-icon"></span><span class="stat-num">50道</span><span class="stat-desc">精选题目</span></div>
+      <div class="stat-card"><span class="stat-icon">⏱️</span><span class="stat-num">约2分钟</span><span class="stat-desc">轻松完成</span></div>
+      <div class="stat-card"><span class="stat-icon">🏙️</span><span class="stat-num">全国</span><span class="stat-desc">城市覆盖</span></div>
+      <div class="stat-card"><span class="stat-icon">🧠</span><span class="stat-num">10维度</span><span class="stat-desc">智能匹配</span></div>
+    </div>
+
+    <div class="card">
+      <p class="card-title"> 测试说明</p>
+      <p class="decl-text">本测试共 <strong>50道题</strong>，覆盖以下 <strong>10个维度</strong>，每道题选择后将<strong>自动跳转</strong>下一题，无需手动点击。完成后系统将从<strong>全国热门城市</strong>中为你精准匹配。</p>
+      <div class="dim-list">
+        <div class="dim-item"><span class="dim-item-icon">🕐</span><div><span class="dim-item-name">生活节奏</span><span class="dim-item-desc"> — 你喜欢快节奏奋斗还是慢生活惬意？</span></div></div>
+        <div class="dim-item"><span class="dim-item-icon">🍜</span><div><span class="dim-item-name">美食文化</span><span class="dim-item-desc"> — 辣味、甜味、海鲜……你的口味决定城市</span></div></div>
+        <div class="dim-item"><span class="dim-item-icon">️</span><div><span class="dim-item-name">文化历史</span><span class="dim-item-desc"> — 古都底蕴 vs 现代气息，你更偏爱哪种？</span></div></div>
+        <div class="dim-item"><span class="dim-item-icon">💻</span><div><span class="dim-item-name">科技创新</span><span class="dim-item-desc"> — 科技氛围与创业生态的契合程度</span></div></div>
+        <div class="dim-item"><span class="dim-item-icon">🌿</span><div><span class="dim-item-name">自然环境</span><span class="dim-item-desc"> — 山川、海滨还是平原，你向往哪种自然？</span></div></div>
+        <div class="dim-item"><span class="dim-item-icon">🌙</span><div><span class="dim-item-name">夜生活</span><span class="dim-item-desc"> — 夜市、酒吧、安静夜晚……你的夜晚偏好</span></div></div>
+        <div class="dim-item"><span class="dim-item-icon">🛍️</span><div><span class="dim-item-name">购物消费</span><span class="dim-item-desc"> — 购物是否是你衡量城市品质的指标？</span></div></div>
+        <div class="dim-item"><span class="dim-item-icon">🌤️</span><div><span class="dim-item-name">气候偏好</span><span class="dim-item-desc"> — 四季分明、常夏还是四季如春？</span></div></div>
+        <div class="dim-item"><span class="dim-item-icon">🏠</span><div><span class="dim-item-name">居住成本</span><span class="dim-item-desc"> — 房价与生活成本对你的重要程度</span></div></div>
+        <div class="dim-item"><span class="dim-item-icon"></span><div><span class="dim-item-name">城市绿化</span><span class="dim-item-desc"> — 绿化覆盖与空气质量的权重</span></div></div>
+      </div>
+    </div>
+
+    <div class="category-section">
+      <div class="category-card">
+        <div class="category-header">
+          <div class="category-left">
+            <div class="category-icon money">💰</div>
+            <div class="category-name">一线 · 搞钱组</div>
+          </div>
+          <div class="category-desc">上限极高 / 极度内卷</div>
+        </div>
+        <div class="city-tags">
+          <span class="city-tag">深圳</span>
+          <span class="city-tag">北京</span>
+          <span class="city-tag">上海</span>
+          <span class="city-tag">广州</span>
+          <span class="city-tag">香港</span>
+        </div>
+      </div>
+      <div class="category-card">
+        <div class="category-header">
+          <div class="category-left">
+            <div class="category-icon rocket">🚀</div>
+            <div class="category-name">强二线 · 潜力组</div>
+          </div>
+          <div class="category-desc">兼顾生活 / 产业发达</div>
+        </div>
+        <div class="city-tags">
+          <span class="city-tag">南京</span>
+          <span class="city-tag">成都</span>
+          <span class="city-tag">武汉</span>
+          <span class="city-tag">杭州</span>
+          <span class="city-tag">苏州</span>
+          <span class="city-tag">天津</span>
+          <span class="city-tag">长沙</span>
+          <span class="city-tag">重庆</span>
+          <span class="city-tag">西安</span>
+          <span class="city-tag">青岛</span>
+        </div>
+      </div>
+      <div class="category-card">
+        <div class="category-header">
+          <div class="category-left">
+            <div class="category-icon coffee">☕</div>
+            <div class="category-name">特色 · 宜居组</div>
+          </div>
+          <div class="category-desc">拒绝内耗 / 精神家园</div>
+        </div>
+        <div class="city-tags">
+          <span class="city-tag">大理</span>
+          <span class="city-tag">厦门</span>
+          <span class="city-tag">昆明</span>
+          <span class="city-tag">西双版纳</span>
+          <span class="city-tag">丽江</span>
+          <span class="city-tag">三亚</span>
+          <span class="city-tag">珠海</span>
+          <span class="city-tag">桂林</span>
+        </div>
+      </div>
+    </div>
+
+    <button class="btn-primary" onclick="startQuiz()">▶ 开始测试 →</button>
+    <div class="footer"><a href="https://www.xiaohongshu.com/user/profile/66bc6458000000001d023d71?xsec_token=YBb5Z9rDZDYxBs_nibWztCRnxBdS6LgKZm7qWam20VdgQ=&amp;xsec_source=app_share&amp;xhsshare=CopyLink&amp;shareRedId=N0lHMThHSUs2NzUyOTgwNjc1OTpKPUlL&amp;apptime=1769450867&amp;share_id=ae0c789c5c07479d8dfe1624f657f209" target="_blank">📝 书豪创业笔记</a></div>
+  </div>
+</div>
+
+<!-- ══════════ PAGE: QUIZ ══════════ -->
+<div class="page" id="page-quiz">
+  <div class="q-header">
+    <div class="q-meta">
+      <span class="q-cat" id="q-cat">🕐 生活节奏</span>
+      <span class="q-count" id="q-count">问题 1 / 50</span>
+      <span class="q-pct" id="q-pct">2%</span>
+    </div>
+    <div class="progress-track"><div class="progress-bar" id="progress-bar" style="width:2%"></div></div>
+  </div>
+  <div class="q-body" id="q-body">
+    <h2 class="q-text" id="q-text"></h2>
+    <div class="opts" id="opts"></div>
+  </div>
+  <div class="q-nav">
+    <button class="nav-btn" id="prev-btn" onclick="prevQ()">‹ 上一题</button>
+    <div class="auto-hint" id="auto-hint">← 点击选项自动跳转</div>
+  </div>
+  <div class="footer"><a href="https://www.xiaohongshu.com/user/profile/66bc6458000000001d023d71?xsec_token=YBb5Z9rDZDYxBs_nibWztCRnxBdS6LgKZm7qWam20VdgQ=&amp;xsec_source=app_share&amp;xhsshare=CopyLink&amp;shareRedId=N0lHMThHSUs2NzUyOTgwNjc1OTpKPUlL&amp;apptime=1769450867&amp;share_id=ae0c789c5c07479d8dfe1624f657f209" target="_blank">📝 书豪创业笔记</a></div>
+</div>
+
+<!-- ══════════ PAGE: RESULT ═════════ -->
+<div class="page" id="page-result">
+  <div class="wide-wrap">
+    <div class="top-card">
+      <p class="top-sub">你的性格与这座城市最匹配</p>
+      <div class="top-icon-emoji">📍</div>
+      <div class="match-pct" id="r-pct">94%</div>
+      <h2 class="top-city" id="r-city">成都</h2>
+      <p class="top-prov" id="r-prov">四川</p>
+      <div class="tag-row" id="r-tags"></div>
+      <div class="tag-row" id="r-kws"></div>
+      <div class="match-reason">
+        <span class="reason-title">💫 匹配理由</span>
+        <p class="reason-text" id="r-desc"></p>
+      </div>
+    </div>
+
+    <div class="dim-card">
+      <p class="dim-card-title">你的城市偏好画像</p>
+      <div class="dim-grid" id="dim-grid"></div>
+    </div>
+
+    <div class="others-card">
+      <p class="others-title">其他适合你的城市</p>
+      <div class="others-grid" id="others-grid"></div>
+    </div>
+
+    <button class="btn-secondary" onclick="resetQuiz()"> 重新测试</button>
+    <div class="footer"><a href="https://www.xiaohongshu.com/user/profile/66bc6458000000001d023d71?xsec_token=YBb5Z9rDZDYxBs_nibWztCRnxBdS6LgKZm7qWam20VdgQ=&amp;xsec_source=app_share&amp;xhsshare=CopyLink&amp;shareRedId=N0lHMThHSUs2NzUyOTgwNjc1OTpKPUlL&amp;apptime=1769450867&amp;share_id=ae0c789c5c07479d8dfe1624f657f209" target="_blank">📝小红书： 书豪创业笔记</a></div>
+  </div>
+</div>
+
+<script>
+const CITIES=[
+{name:"北京",province:"北京",tags:["文化型","历史型","美食型"],kw:["千年古都","文化中心","四季分明"],p:{pace:85,food:80,history:100,tech:85,nature:30,nightlife:70,shopping:90,climate:30,housing:5,greenery:40},desc:"北京是中国文化的最高殿堂，故宫、胡同与现代CBD并肩而立，古今在这里完美交融。这里有最顶尖的大学、最丰富的博物馆、最多元的美食体系，从北京烤鸭到各地菜系应有尽有。四季分明让人感受时光流转，春赏花夏绿荫秋层林冬飘雪。如果你内心渴望站在中国最高的历史舞台上，感受千年积淀带来的厚重与骄傲，北京就是你的归宿。"},
+{name:"上海",province:"上海",tags:["国际型","时尚型","商业型"],kw:["魔都","国际大都市","海派文化"],p:{pace:95,food:75,history:65,tech:90,nature:20,nightlife:90,shopping:100,climate:55,housing:5,greenery:45},desc:"上海是中国最国际化的城市，外滩的霓虹与浦东的摩天楼共同构成东方最迷人的天际线。这里的购物从奢侈品旗舰店到本土独立品牌应有尽有，夜生活丰富到凌晨三点仍人声鼎沸。海派文化兼容并蓄，让每个来自五湖四海的人都能找到归属感。如果你向往都市精英的快节奏生活，渴望站在时尚与金融的最前沿，上海是你最好的选择。"},
+{name:"深圳",province:"广东",tags:["科技型","创业型","移民型"],kw:["科技之城","创新之都","年轻活力"],p:{pace:100,food:70,history:20,tech:100,nature:35,nightlife:80,shopping:85,climate:75,housing:8,greenery:60},desc:"深圳是中国最年轻的一线城市，也是创业者心中的应许之地。这里没有历史包袱，只有向前奔跑的勇气。华为、腾讯、大疆等科技巨头在此诞生，创业生态极为成熟。移民城市的包容气质让每个有梦想的人都能在这里找到机会。气候温暖，公园绿化丰富，快节奏工作之余也有不错的生活质量。如果你有雄心、有技能，想在最激烈的赛道上证明自己，深圳等你。"},
+{name:"广州",province:"广东",tags:["美食型","商业型","传统型"],kw:["千年商都","饮食文化","老城气息"],p:{pace:80,food:100,history:80,tech:75,nature:40,nightlife:80,shopping:85,climate:80,housing:20,greenery:65},desc:"广州是中国最懂吃的城市，没有之一。一盅两件的早茶文化延续了千年，肠粉、虾饺、叉烧包构成广州人的生活仪式感。千年商都的历史赋予了广州务实包容的城市气质，老西关骑楼与珠江新城的摩天楼交相辉映。气候温暖，冬日不冷，四季常绿。如果你热爱美食文化、追求烟火气十足的市井生活，同时又享受一线城市的便利与活力，广州无疑是最好的选择。"},
+{name:"成都",province:"四川",tags:["躺平型","社交型","文艺型"],kw:["巴适生活","休闲惬意","美食文化"],p:{pace:20,food:95,history:80,tech:65,nature:55,nightlife:75,shopping:70,climate:60,housing:45,greenery:65},desc:"成都是中国慢生活的代名词，也是内心渴望平静的人的精神家园。这里的人把生活过成了一门艺术——早晨喝茶打麻将，中午吃一顿鲜嫩的火锅，下午逛宽窄巷子，夜晚在酒吧街闲聊。西南最成熟的科技产业生态让这里并不乏职业机会，而相对合理的房价让生活压力大大降低。如果你厌倦了内卷，渴望在美食与悠闲中找回生活本质，成都将彻底治愈你。"},
+{name:"杭州",province:"浙江",tags:["文艺型","自然型","科技型"],kw:["人间天堂","西湖美景","数字经济"],p:{pace:65,food:75,history:85,tech:85,nature:75,nightlife:60,shopping:80,climate:60,housing:25,greenery:80},desc:"杭州是古典与现代最完美融合的城市。西湖烟雨、龙井茶香、白堤苏堤构成了一幅千年流传的山水画卷；而阿里巴巴等互联网巨头的崛起，又让杭州成为中国数字经济的最前沿。骑行西湖堤岸、漫步良渚古城、周末爬山赏湖，大自然近在咫尺。如果你想在湖光山色中找到精神滋养，同时在科技互联网赛道上追求事业高峰，杭州是极少数两者兼得的城市。"},
+{name:"武汉",province:"湖北",tags:["文化型","美食型","热情型"],kw:["九省通衢","大学城","热干面"],p:{pace:70,food:85,history:75,tech:70,nature:55,nightlife:70,shopping:70,climate:55,housing:50,greenery:60},desc:"武汉是中部最有烟火气的城市，也是大学生密度最高的城市之一。热干面的香气飘满清晨的街头，豆皮与鸭脖让武汉美食独树一帜。九省通衢的地理优势造就了武汉人豪爽直接的性格，也带来了丰富的商业与人文交流。东湖绿道是全国最长的城市绿道之一，自然生态出色。如果你喜欢热烈真实的城市性格、高性价比的生活，又不想放弃大城市的发展机遇，武汉是你的舞台。"},
+{name:"西安",province:"陕西",tags:["历史型","文化型","美食型"],kw:["十三朝古都","古城墙","陕西小吃"],p:{pace:45,food:90,history:100,tech:55,nature:35,nightlife:65,shopping:60,climate:40,housing:55,greenery:35},desc:"西安是中国历史最厚重的城市，十三朝古都的沉淀让每一块城砖都在诉说故事。兵马俑、城墙、大雁塔、回民街，历史与日常生活融为一体，走在街头就像穿越时光隧道。陕西小吃体系极为丰富，羊肉泡馍、肉夹馍、凉皮、biangbiang面让人流连忘返。如果你对中华文明有深厚的热情，渴望在古都的气息中感受历史的重量与美食的慰藉，西安是你无法拒绝的城市。"},
+{name:"南京",province:"江苏",tags:["文艺型","文化型","精致型"],kw:["六朝古都","文艺气质","梧桐树下"],p:{pace:60,food:78,history:95,tech:68,nature:60,nightlife:65,shopping:72,climate:55,housing:35,greenery:75},desc:"南京是中国最具文艺气质的历史名城，六朝古都的厚重与梧桐大道的浪漫构成了独特的城市美学。秦淮河边的灯影、夫子庙的热闹、中山陵的庄严，都是南京无可替代的城市记忆。这里大学林立，人文氛围极浓，书店与咖啡馆密布于老城区。如果你热爱历史、享受文艺，又希望在一个节奏不太快、房价相对友好的城市安放自己的灵魂，南京是绝佳选择。"},
+{name:"重庆",province:"重庆",tags:["个性型","美食型","社交型"],kw:["山城","火锅","江湖气息"],p:{pace:65,food:95,history:70,tech:60,nature:65,nightlife:80,shopping:70,climate:65,housing:50,greenery:60},desc:"重庆是中国最魔幻的3D城市，山城地形造就了世界上独一无二的城市形态——轻轨穿楼而过，立交桥高达八层，洪崖洞倒映于江面之上。火锅是重庆的灵魂，麻辣鲜香的江湖气贯穿整座城市。夜晚的两江灯火璀璨如星河，是全国最美城市夜景之一。如果你个性鲜明、热爱美食、享受社交，想在一个真实接地气又充满视觉冲击的城市里生活，重庆就是你。"},
+{name:"苏州",province:"江苏",tags:["文艺型","传统型","精致型"],kw:["江南水乡","园林之城","温婉雅致"],p:{pace:45,food:72,history:90,tech:70,nature:70,nightlife:50,shopping:75,climate:55,housing:30,greenery:75},desc:"苏州是江南最精致的城市，园林、水巷、评弹共同构成了这座城市温婉的气质。拙政园的假山流水、平江路的青石板小巷、寒山寺的钟声，无处不流淌着千年江南的诗意。苏州的经济实力极为雄厚，工业园区是中国最成功的开发区之一，职业发展机会丰沛。如果你追求精致而不张扬的生活美学，喜欢在文化底蕴与现代经济中找到平衡，苏州是你的理想落脚点。"},
+{name:"天津",province:"天津",tags:["传统型","美食型","市井型"],kw:["相声之都","海鲜美食","近代历史"],p:{pace:55,food:82,history:75,tech:55,nature:25,nightlife:60,shopping:68,climate:30,housing:40,greenery:40},desc:"天津是北方最有烟火气的城市，相声文化在这里生根发芽，孕育了独特的市井幽默感。海鲜资源丰富，煎饼果子、狗不理包子、麻花是津门人的味觉记忆。五大道的西式建筑与老城区的四合院共存，近代历史留下了独特的城市性格。紧邻北京，通勤便利，却拥有远低于北京的生活成本。如果你喜欢接地气的北方生活风情，又想享受京津都市圈的区位红利，天津是务实之选。"},
+{name:"长沙",province:"湖南",tags:["娱乐型","美食型","社交型"],kw:["夜经济","芒果TV","辣味文化"],p:{pace:70,food:92,history:65,tech:60,nature:50,nightlife:90,shopping:72,climate:60,housing:55,greenery:55},desc:"长沙是中国娱乐经济最发达的城市，芒果TV与抖音网红让这座城市成为流量中心。夜经济极为繁荣，太平街与坡子街的宵夜文化延续至深夜，臭豆腐、剁椒鱼头、小龙虾令人上瘾。湖湘文化孕育了长沙人骨子里的敢为人先，创业氛围日趋活跃。如果你热爱美食与社交，喜欢永远有新鲜感的城市氛围，不喜欢太严肃的生活，长沙会让你每天都充满能量。"},
+{name:"青岛",province:"山东",tags:["自然型","社交型","休闲型"],kw:["海滨风情","啤酒之城","红瓦绿树"],p:{pace:50,food:80,history:65,tech:55,nature:80,nightlife:65,shopping:65,climate:45,housing:45,greenery:70},desc:"青岛是中国最美的海滨城市之一，红瓦绿树配碧海蓝天，构成了独一无二的城市风貌。德式建筑遗存让老城区散发着异国浪漫气质，啤酒节是全国乃至亚洲最盛大的啤酒狂欢。海鲜极为鲜美，蛤蜊就是青岛人的灵魂伴侣。如果你热爱海洋、享受休闲生活节奏，又想拥有一座品质不低却不必承受超高压力的城市，青岛将是令人心旷神怡的选择。"},
+{name:"郑州",province:"河南",tags:["传统型","美食型","务实型"],kw:["交通枢纽","中原文化","烩面"],p:{pace:70,food:78,history:80,tech:55,nature:30,nightlife:55,shopping:60,climate:40,housing:60,greenery:35},desc:"郑州是中国最重要的交通枢纽之一，高铁可达全国几乎所有主要城市。中原文化底蕴深厚，洛阳、开封等历史名城近在咫尺，周末文化资源极为丰富。烩面是郑州的城市味道，实惠爽口，烟火气十足。近年来高新技术产业快速发展，职业机会日益增多。如果你追求稳健务实的生活节奏，重视交通便利与文化底蕴，郑州是中部地区性价比极高的居住选择。"},
+{name:"大连",province:"辽宁",tags:["自然型","文艺型","躺平型"],kw:["北方明珠","海滨城市","浪漫之都"],p:{pace:40,food:75,history:60,tech:55,nature:85,nightlife:55,shopping:65,climate:35,housing:50,greenery:70},desc:"大连是东北最美丽的城市，被誉为北方明珠。城市规划整洁，绿化覆盖率高，沿海公路风景如画。海鲜资源丰富，海蛎子、海参、梭子蟹是餐桌上的常客。夏季气候凉爽，是避暑胜地，吸引了大量南方游客。浪漫的城市氛围与齐整的欧式建筑让大连颇具异国风情。如果你喜欢北方豁达的生活方式，又渴望海滨自然环境与清新空气，大连会让你的生活充满诗意。"},
+{name:"厦门",province:"福建",tags:["文艺型","自然型","精致型"],kw:["鼓浪屿","海岛风情","慢生活"],p:{pace:35,food:78,history:65,tech:55,nature:85,nightlife:60,shopping:65,climate:72,housing:35,greenery:80},desc:"厦门是中国最适合慢生活的海滨城市，鼓浪屿上的钢琴声与咖啡香气飘散在海风里。气候温暖湿润，冬无严寒，四季皆宜居住。文艺氛围极为浓厚，独立书店、手工咖啡馆、艺术工作室遍布街头。闽南美食精致可口，沙茶面与海蛎煎是厦门人的日常幸福。如果你渴望在海岛气息中找到生活的美好质感，享受不慌不忙的节奏，厦门会让每一天都成为值得珍藏的记忆。"},
+{name:"宁波",province:"浙江",tags:["商业型","传统型","精致型"],kw:["商帮文化","港口城市","温婉精致"],p:{pace:65,food:72,history:78,tech:68,nature:55,nightlife:55,shopping:72,climate:58,housing:35,greenery:62},desc:"宁波是长三角最被低估的城市之一，宁波商帮的精神遗产让这座城市骨子里透着务实与智慧。作为全球重要的港口城市，宁波制造业与外贸实力雄厚，薪资待遇在浙江省名列前茅。天一阁藏书楼是中国现存最古老的私家藏书楼，文化底蕴不俗。海鲜资源丰富，宁波汤圆与呛蟹是地道美味。如果你务实进取、追求精致而不浮夸的高品质生活，宁波是一座值得长久扎根的城市。"},
+{name:"昆明",province:"云南",tags:["自然型","躺平型","探索型"],kw:["春城","四季如春","民族风情"],p:{pace:25,food:80,history:60,tech:45,nature:85,nightlife:55,shopping:55,climate:85,housing:60,greenery:85},desc:"昆明是中国气候最宜人的省会城市，全年平均气温约15度，四季如春，空气清新，是真正意义上的天然氧吧。云南多民族文化在这里汇聚，傣族、彝族、纳西族的风情让城市充满异域色彩。石林、滇池、翠湖等自然景观触手可及。近年来咖啡文化悄然兴起，昆明逐渐成为文艺青年的新聚集地。如果你厌倦了恶劣气候对身心的折磨，渴望在四季如春的自然环境里找回生活的舒适感，昆明是绝佳归宿。"},
+{name:"合肥",province:"安徽",tags:["科技型","务实型","发展型"],kw:["科研之城","新兴科技","量子信息"],p:{pace:70,food:68,history:60,tech:85,nature:45,nightlife:55,shopping:60,climate:52,housing:55,greenery:55},desc:"合肥是中国科技崛起最快的城市之一，量子信息、人工智能、新能源汽车产业在此高度聚集。中科大坐落于此，科研人才密度全国领先，创新氛围极为浓厚。城市发展速度惊人，近十年基础设施日新月异。相对合理的房价和生活成本，让科技人才在这里可以兼顾事业与生活质量。如果你从事科研或科技产业，渴望在一个快速上升的城市中抓住时代机遇，合肥是极具吸引力的选择。"},
+{name:"丽江",province:"云南",tags:["文艺型","探索型","躺平型"],kw:["古城风情","纳西文化","慢时光"],p:{pace:10,food:72,history:78,tech:20,nature:95,nightlife:50,shopping:50,climate:75,housing:70,greenery:90},desc:"丽江是世界文化遗产，也是无数心怀浪漫的人梦寐以求的慢生活圣地。古城石板路、东巴文字、纳西古乐构成了独一无二的文化体验。抬眼便是玉龙雪山，低头是石板路上的流水倒影，时间在这里仿佛静止。文艺小店与咖啡馆点缀其间，给予旅居者精神上的滋养。如果你内心渴望暂停快节奏生活，在雪山与古城的怀抱中寻找内心的平静与自由，丽江是最接近心灵栖息地的地方。"},
+{name:"大理",province:"云南",tags:["文艺型","探索型","自由型"],kw:["苍山洱海","白族文化","自由之地"],p:{pace:10,food:70,history:72,tech:15,nature:100,nightlife:45,shopping:45,climate:80,housing:75,greenery:92},desc:"大理是中国最具自由精神的城市，苍山如屏、洱海如镜，构成了世间罕有的自然奇景。大量艺术家、作家、独立创业者在这里找到了精神归宿，文艺旅居氛围全国首屈一指。白族传统建筑与民俗文化保留完整，古城烟火气十足。气候温和，四季宜人，生活成本相对低廉。如果你渴望摆脱城市束缚，追求一种自由、纯粹、与自然和解的生活方式，大理将彻底改变你对生活的定义。"},
+{name:"三亚",province:"海南",tags:["度假型","自然型","休闲型"],kw:["热带天堂","阳光沙滩","免税购物"],p:{pace:15,food:80,history:30,tech:35,nature:95,nightlife:70,shopping:80,climate:100,housing:35,greenery:85},desc:"三亚是中国最南端的热带度假天堂，全年阳光充沛，冬日来此如同走进另一个世界。亚龙湾、天涯海角的白沙碧浪让人忘却烦恼，热带雨林中的清晨令人神清气爽。免税购物政策吸引了大量消费者，海鲜极为新鲜。椰林、沙滩、海风是三亚居民的日常背景。如果你厌倦了北方的严冬，渴望全年在温暖阳光中生活，享受海边的慢节奏与热带美食，三亚是你的阳光庇护所。"},
+{name:"西双版纳",province:"云南",tags:["探索型","自然型","异域型"],kw:["热带雨林","傣族风情","慵懒时光"],p:{pace:10,food:75,history:65,tech:15,nature:100,nightlife:45,shopping:40,climate:95,housing:80,greenery:100},desc:"西双版纳是中国最神秘的热带边境城市，热带雨林覆盖率极高，生物多样性令人叹为观止。族风情浓郁，泼水节、傣楼、菩提古寺是这里独特的人文风景。气候常年温热，冬季无需厚衣，慵懒的热带节奏让人彻底放松。云南特色美食与东南亚风味在这里交汇，别具一格。如果你向往与世隔绝的热带秘境，渴望用最小的生活压力换取最丰富的自然体验，版纳是你灵魂出走的目的地。"},
+{name:"海口",province:"海南",tags:["自然型","休闲型","传统型"],kw:["椰城","骑楼老街","海南美食"],p:{pace:30,food:82,history:62,tech:40,nature:85,nightlife:55,shopping:60,climate:98,housing:45,greenery:82},desc:"海口是海南自贸港的核心城市，兼具热带风情与经济政策红利双重魅力。骑楼老街保留着南洋风格的殖民地建筑，文昌鸡、猪脚饭、海南粉是地道的本土味道。椰树成荫，空气清新，全年阳光充足，适合养老旅居或远程办公。自贸港政策带来了大量就业与投资机会。如果你追求热带舒适生活，同时想搭乘政策东风寻求发展机遇，海口是兼具生活质量与未来潜力的理想之选。"},
+{name:"珠海",province:"广东",tags:["自然型","精致型","休闲型"],kw:["浪漫之城","海滨花园","宜居"],p:{pace:30,food:75,history:45,tech:55,nature:88,nightlife:50,shopping:65,climate:82,housing:35,greenery:85},desc:"珠海是全国宜居指数最高的城市之一，被称为浪漫之城实至名归。情侣路绵延数十公里，海风轻柔，夜晚散步是最治愈的日常。城市绿化率极高，空气洁净，节奏舒缓，几乎没有拥堵与喧嚣。毗邻澳门，消费与文化资源丰富。相对较低的房价和生活成本让高质量生活触手可及。如果你追求环境优美、压力适中、自然与城市完美融合的精致生活，珠海将让你每天醒来都感到幸运。"},
+{name:"桂林",province:"广西",tags:["自然型","探索型","文艺型"],kw:["山水甲天下","漓江","喀斯特地貌"],p:{pace:20,food:72,history:68,tech:30,nature:100,nightlife:40,shopping:45,climate:70,housing:72,greenery:90},desc:"桂林是中国乃至世界山水画的原型，漓江两岸的喀斯特峰林构成了无与伦比的自然奇观。阳朔西街的清晨薄雾、龙脊梯田的壮丽秋色、漓江竹筏上的静谧漂流，处处皆是令人屏息的美景。生活节奏极为舒缓，物价亲民，旅居文化发达，吸引了大量外国人长期定居。如果你以自然风光为生活的最高追求，渴望在山水之间找到灵魂最安宁的居所，桂林将成为你一生中最美好的城市记忆。"},
+{name:"黄山",province:"安徽",tags:["自然型","文艺型","传统型"],kw:["天下第一奇山","徽派建筑","云海"],p:{pace:15,food:68,history:80,tech:20,nature:100,nightlife:30,shopping:40,climate:60,housing:78,greenery:95},desc:"黄山是中国山水美学的巅峰，云海、奇松、怪石、温泉构成了令无数文人墨客倾倒的四绝。徽派古村落宏村、西递保存完好，白墙黛瓦的建筑美学在世界范围内独树一帜。徽州文化积淀深厚，新安画派、徽商精神至今仍影响着这片土地的气质。如果你对中国传统美学情有独钟，渴望在山水奇景与古朴人文的包围中寻找生活的意义与宁静，黄山周边是不可多得的旅居胜地。"},
+{name:"张家界",province:"湖南",tags:["探索型","自然型","冒险型"],kw:["阿凡达取景地","奇峰异石","自然奇观"],p:{pace:20,food:70,history:50,tech:15,nature:100,nightlife:35,shopping:40,climate:62,housing:78,greenery:92},desc:"张家界是中国最震撼的自然奇观之一，《阿凡达》哈利路亚山的原型正是这里的悬浮峰林。数千根石柱拔地而起，云雾缭绕其间，仿佛来自另一个星球的景象。天门山玻璃栈道、百龙天梯、金鞭溪徒步道令每位到访者叹为观止。生活成本低廉，远离城市喧嚣，是极佳的旅居养生之地。如果你对自然有极度的热情，渴望在地球上最震撼的视觉奇景中居住生活，张家界是你的终极梦想地。"},
+{name:"哈尔滨",province:"黑龙江",tags:["文艺型","传统型","异域型"],kw:["冰雪之城","欧式建筑","东北美食"],p:{pace:35,food:80,history:70,tech:40,nature:60,nightlife:55,shopping:58,climate:5,housing:70,greenery:50},desc:"哈尔滨是中国最具异域风情的城市，中央大街的俄式巴洛克建筑让人恍若身处欧洲。冰雪大世界是全球最壮观的冰雕艺术殿堂，每年吸引数百万游客。东北美食豪迈丰盛，锅包肉、铁锅炖、红肠是哈尔滨人的舌尖记忆。夏季短暂而美好，是避暑胜地。虽然冬季严寒，却造就了哈尔滨人豁达热情的性格。如果你热爱冰雪文化、欣赏异国建筑美学，并能享受东北大气磅礴的生活风情，哈尔滨是一座令人着迷的城市。"},
+{name:"长春",province:"吉林",tags:["传统型","文化型","务实型"],kw:["汽车之城","电影城","东北风情"],p:{pace:40,food:75,history:62,tech:55,nature:50,nightlife:48,shopping:58,climate:10,housing:72,greenery:52},desc:"长春是中国汽车工业的摇篮，一汽集团从这里走向全国。伪满皇宫博物院留存着一段特殊的历史记忆，长影世纪城则承载着中国电影工业的重要印记。东北人的豪爽与热情在长春体现得淋漓尽致，生活节奏适中，人际关系真实朴素。生活成本低廉，宜居指数较高。如果你追求踏实稳健的生活节奏，不排斥东北的冬季严寒，想在一个务实温情的城市里安心生活和工作，长春是理想选择。"},
+{name:"沈阳",province:"辽宁",tags:["历史型","传统型","务实型"],kw:["盛京故都","工业重镇","东北文化"],p:{pace:50,food:78,history:80,tech:50,nature:40,nightlife:55,shopping:60,climate:15,housing:65,greenery:45},desc:"沈阳是清朝的发祥之地，故宫与福陵、昭陵共同构成了东北历史文化的核心。作为东北最大的工业城市，沈阳的制造业底蕴深厚，近年来科技与现代服务业快速发展。东北美食在沈阳体系最为完整，猪肉炖粉条、小鸡炖蘑菇、沈阳老边饺子都是令人难忘的滋味。如果你对历史文化充满兴趣，喜欢东北人直爽豪迈的性格，又在寻找一个发展空间与生活成本平衡的城市，沈阳值得认真考虑。"},
+{name:"乌鲁木齐",province:"新疆",tags:["探索型","异域型","自然型"],kw:["西域风情","多民族","中亚交汇"],p:{pace:40,food:85,history:72,tech:38,nature:75,nightlife:50,shopping:55,climate:20,housing:68,greenery:35},desc:"乌鲁木齐是中国离海洋最远的城市，也是通往中亚的重要门户。多民族聚居让这里的文化生态极为多元，维吾尔族、哈萨克族的歌舞与集市构成了令人陶醉的异域氛围。大盘鸡、手抓饭、烤全羊是新疆饮食的代表，风味浓烈独特。周边的天山雪峰与戈壁大漠提供了绝佳的自然探索场景。如果你对中亚文化有强烈好奇心，渴望在异域风情与壮阔自然中感受别样的中国，乌鲁木齐是独一无二的体验之地。"},
+{name:"兰州",province:"甘肃",tags:["传统型","美食型","务实型"],kw:["黄河穿城","拉面故乡","西北风情"],p:{pace:40,food:80,history:72,tech:38,nature:55,nightlife:45,shopping:50,climate:32,housing:72,greenery:35},desc:"兰州是中国唯一一座黄河穿城而过的省会城市，黄河母亲雕塑与滨河路的日落是城市最美的标志。正宗兰州拉面在这里是日常早餐，汤清味鲜，与全国各地的改良版本有着天壤之别。西北高原的阳光充足，空气干燥，饮食朴实鲜美，人情味极浓。生活成本在全国省会城市中属于偏低水平。如果你向往质朴真实的西北生活风情，追求简单而充实的日子，兰州是一座让人心静的城市。"},
+{name:"西宁",province:"青海",tags:["探索型","自然型","传统型"],kw:["高原城市","青藏门户","藏族文化"],p:{pace:25,food:72,history:65,tech:30,nature:88,nightlife:38,shopping:42,climate:45,housing:72,greenery:45},desc:"西宁是前往青藏高原的门户城市，海拔2200米的高原气候让夏季清凉宜人，是绝佳的避暑胜地。青海湖、塔尔寺、茶卡盐湖等自然与宗教胜地近在咫尺，周末即可驾车抵达。藏族、回族、汉族文化在此交汇，使西宁拥有极为多元的文化面貌。手抓羊肉与酸奶是高原特色美食。如果你渴望远离都市喧嚣，在高原清澈的天空与广袤的自然中寻找内心的宁静与旷达，西宁是你不可错过的目的地。"},
+{name:"拉萨",province:"西藏",tags:["探索型","精神型","自然型"],kw:["日光之城","布达拉宫","藏传佛教"],p:{pace:10,food:65,history:88,tech:15,nature:95,nightlife:30,shopping:40,climate:55,housing:65,greenery:40},desc:"拉萨是离天空最近的城市，布达拉宫金顶在阳光下熠熠生辉，大昭寺前的朝圣者用身体丈量着信仰的距离。藏传佛教文化在这里达到顶峰，转经筒、玛尼石、酥油灯共同构成了世界上最纯粹的精神场域。高原空气清澈，日照时间极长，被称为日光之城。如果你内心有一处渴望净化的角落，渴望在信仰与自然的震撼中找到生命的意义与宁静，拉萨将给予你一次深刻的灵魂洗礼。"},
+{name:"银川",province:"宁夏",tags:["传统型","探索型","务实型"],kw:["塞上江南","贺兰山","西夏文化"],p:{pace:30,food:75,history:70,tech:35,nature:70,nightlife:40,shopping:48,climate:30,housing:75,greenery:40},desc:"银川是塞上江南的核心城市，贺兰山岩画、西夏王陵是中华文明中最神秘也最独特的历史遗迹。宁夏枸杞、贺兰山葡萄酒、滩羊肉是这里的地理标志产品，风味独特。黄河在此流淌，沙湖的水草与沙漠共存，构成了令人惊叹的生态奇观。生活成本低，城市宜居，节奏舒缓。如果你对西夏历史文化充满兴趣，渴望在塞上边疆体验与众不同的人文风情与自然景观，银川是一座被低估的宝藏城市。"},
+{name:"贵阳",province:"贵州",tags:["自然型","美食型","躺平型"],kw:["避暑之都","苗族文化","酸汤鱼"],p:{pace:25,food:88,history:60,tech:45,nature:82,nightlife:55,shopping:52,climate:72,housing:72,greenery:80},desc:"贵阳是中国最著名的避暑之都，夏季平均气温仅约23度，清凉舒爽，是炎夏逃离酷热的最佳去处。苗族、侗族、布依族文化丰富多彩，少数民族风情节日精彩纷呈。酸汤鱼、丝娃娃、肠旺面是贵州美食的骄傲，口味独特令人难忘。大数据产业近年来快速崛起，科技机遇逐渐增多。如果你对凉爽气候有强烈需求，想在山地城市中享受低成本的悠闲生活，同时不失少数民族文化的滋养，贵阳是你的避暑天堂。"},
+{name:"遵义",province:"贵州",tags:["历史型","传统型","务实型"],kw:["红色文化","茅台故里","黔北风情"],p:{pace:30,food:80,history:75,tech:30,nature:70,nightlife:42,shopping:45,climate:65,housing:78,greenery:72},desc:"遵义是中国红色文化最重要的城市之一，遵义会议会址是每位中国人心中的历史坐标。茅台镇就在遵义怀抱之中，酱香酒的千年酿制传统让这片土地充满独特的文化气质。黔北山水秀美，赤水丹霞地貌壮观，生态资源极为丰富。生活成本低廉，山地气候适宜。如果你敬重红色历史，热爱山地自然，向往低成本的悠然生活，遵义是一座有厚度也有温度的黔北城市。"},
+{name:"南宁",province:"广西",tags:["自然型","传统型","休闲型"],kw:["绿城","壮族文化","东盟门户"],p:{pace:40,food:82,history:60,tech:45,nature:80,nightlife:60,shopping:60,climate:85,housing:60,greenery:88},desc:"南宁是中国绿化覆盖率最高的城市之一，四季常绿，植被茂盛，空气清新，有'绿城'之美誉。壮族文化底蕴深厚，歌圩节、铜鼓文化赋予城市独特的民族气质。老友面、柠檬鸭、螺蛳粉是南宁美食的代表，口味鲜辣有层次。作为中国面向东盟的桥头堡，南宁的国际化程度日益提高，东南亚风情随处可见。如果你热爱热带绿意、少数民族文化，追求气候温暖的悠闲生活，南宁是华南宜居之选。"},
+{name:"北海",province:"广西",tags:["自然型","休闲型","度假型"],kw:["银滩","海丝起点","慢生活"],p:{pace:15,food:80,history:65,tech:25,nature:92,nightlife:45,shopping:48,climate:88,housing:65,greenery:80},desc:"北海是中国最纯净的海滨城市之一，银滩绵延二十余公里，沙质细白如粉，海水清澈碧透。作为海上丝绸之路的重要起点，北海老街骑楼建筑别具南洋风情。海鲜极为新鲜，全年气候温暖，冬季无须厚衣。节奏极为舒缓，没有大城市的喧嚣与压力，是旅居养老的绝佳选择。如果你向往远离都市纷扰、在蓝天碧海椰风中过上真正意义上的慢生活，北海将带给你身心的双重解放。"},
+{name:"湛江",province:"广东",tags:["自然型","美食型","休闲型"],kw:["海鲜之都","红土地","慢生活"],p:{pace:20,food:90,history:55,tech:30,nature:88,nightlife:48,shopping:50,climate:90,housing:70,greenery:80},desc:"湛江是中国海鲜最肥美的城市之一，生蚝、大虾、鲍鱼、海胆等海产品的新鲜程度和价格让全国人民羡慕。红土地是湛江最独特的地理标志，配上高大的木麻黄防风林，构成了别具一格的热带海岸风貌。气候常年温热，冬季阳光充足，不必担心寒冷。生活节奏极为悠闲，人情味浓厚。如果你是海鲜爱好者，渴望在热带阳光下以极低成本过上健康惬意的滨海生活，湛江是被严重低估的美食天堂。"},
+{name:"福州",province:"福建",tags:["传统型","美食型","商业型"],kw:["有福之州","闽菜发源","海峡城市"],p:{pace:55,food:82,history:78,tech:60,nature:62,nightlife:58,shopping:65,climate:72,housing:40,greenery:72},desc:"福州是'有福之州'，也是闽菜的发祥地。佛跳墙、鱼丸、线面等美食精致可口，体现了闽人对食材的极致讲究。三坊七巷是中国保存最完整的里坊制古街区之一，历史建筑群庄严而有温度。数字经济近年来发展迅猛，吸引了大批互联网企业落户。气候温暖湿润，绿化丰富，宜居指数较高。如果你喜爱闽文化的精致与包容，渴望在一个有底蕴、有活力、气候宜人的城市安家，福州是极具潜力的选择。"},
+{name:"泉州",province:"福建",tags:["历史型","传统型","美食型"],kw:["海丝起点","闽南文化","多元宗教"],p:{pace:40,food:85,history:95,tech:45,nature:58,nightlife:55,shopping:58,climate:72,housing:50,greenery:62},desc:"泉州是世界海上丝绸之路的起点，2021年成功列入世界文化遗产名录。开元寺、清净寺、天后宫等多元宗教建筑在同一座城市和平共存，见证了千年商业文明的包容气度。闽南文化在泉州得到最完整的保存，南音、木偶戏、簪花围令人叹为观止。卤面、牛肉羹、海蛎煎是泉州的味觉名片。如果你对闽南历史文化充满敬意，渴望在一座有深厚人文温度的世遗城市中感受中华文明的多元魅力，泉州是不可错过的选择。"},
+{name:"温州",province:"浙江",tags:["商业型","务实型","传统型"],kw:["温商精神","民营经济","瓯越文化"],p:{pace:80,food:78,history:68,tech:60,nature:62,nightlife:60,shopping:72,climate:62,housing:35,greenery:60},desc:"温州是中国民营经济最发达的城市之一，温州商人走遍世界的故事激励了几代中国人。骨子里的创业精神与务实气质让温州人在任何地方都能找到生存之道。海岛资源丰富，山海自然兼备，楠溪江漂流与洞头群岛是城市的生态名片。美食上，温州鱼丸、矮人松糕、敲鱼汤各具特色。如果你天生具备创业者的奋斗精神，渴望在一个商业基因最纯粹、机会最多元的城市中找到自己的舞台，温州值得你深耕。"},
+{name:"绍兴",province:"浙江",tags:["文艺型","历史型","传统型"],kw:["水乡古城","鲁迅故里","黄酒文化"],p:{pace:35,food:72,history:88,tech:50,nature:65,nightlife:45,shopping:58,climate:58,housing:45,greenery:68},desc:"绍兴是中国最具文化底蕴的水乡古城，鲁迅故里、兰亭书法圣地、沈园爱情传说让这座城市充满了文学与历史的厚重感。乌篷船荡漾在青石小巷间，黄酒的醇香弥漫于清晨的空气中，一切都透着江南特有的诗意从容。城市规模适中，节奏舒缓，紧邻杭州宁波，生活便利度高。如果你热爱中国文学与历史，追求精神富足的水乡生活，绍兴是一座让你每天都有所感悟的文化之城。"},
+{name:"扬州",province:"江苏",tags:["文艺型","传统型","美食型"],kw:["扬州慢","园林古城","淮扬菜"],p:{pace:20,food:85,history:90,tech:40,nature:65,nightlife:45,shopping:58,climate:55,housing:55,greenery:72},desc:"扬州自古以来是江南最富庶的城市之一，烟花三月的繁华至今仍可在瘦西湖与个园中寻觅。淮扬菜是中国四大菜系之一，狮子头、清炖蟹粉、文思豆腐工艺精湛，令人叫绝。扬州早茶文化浓厚，清晨一桌汤包蒸饺是扬州人最幸福的日常仪式。城市节奏极为舒缓，绿化优美，适合慢下来享受生活。如果你追求诗意慢生活、热爱精致饮食文化，渴望在历史名城的温柔时光中找到内心的平静，扬州是理想归宿。"},
+{name:"洛阳",province:"河南",tags:["历史型","文化型","传统型"],kw:["十三朝古都","牡丹之城","龙门石窟"],p:{pace:45,food:78,history:100,tech:45,nature:50,nightlife:55,shopping:55,climate:42,housing:62,greenery:48},desc:"洛阳是中国建都历史最长的城市，十三朝古都的底蕴让每一寸土地都承载着历史的厚重。龙门石窟的万尊佛像静默千年，白马寺是中国第一古刹，隋唐洛阳城遗址规模宏大令人震撼。每年四月的牡丹花会吸引数百万人赴约，花开富贵的景象是洛阳最浪漫的城市名片。如果你对中华文明充满敬畏与热爱，渴望在古都的怀抱中感受历史的重量与文化的绵延，洛阳是你内心最深处的城市。"},
+{name:"开封",province:"河南",tags:["历史型","美食型","传统型"],kw:["七朝古都","宋文化","夜市小吃"],p:{pace:40,food:82,history:98,tech:35,nature:35,nightlife:68,shopping:50,climate:42,housing:70,greenery:38},desc:"开封是宋文化的核心发源地，《清明上河图》里那个车水马龙的繁华，至今仍在鼓楼夜市中延续。七朝古都的历史让开封的每条街道都充满故事，铁塔、相国寺、大宋御街是城市历史的文化坐标。夜市小吃品类繁多，灌汤包、羊肉炕馍、炒凉粉让人流连。生活成本极低，民风淳朴。如果你对宋代文化有特别的情感，渴望在烟火气最浓的历史古都中过一种朴实而有文化深度的生活，开封是难得的体验之地。"},
+{name:"济南",province:"山东",tags:["传统型","文化型","务实型"],kw:["泉城","历史名城","山东文化"],p:{pace:55,food:78,history:80,tech:55,nature:50,nightlife:58,shopping:65,climate:35,housing:50,greenery:55},desc:"济南是中国最著名的泉城，七十二泉星罗棋布，趵突泉涌动千年，天下第一泉的美誉令人心驰神往。齐鲁文化在这里得到最完整的传承，孔孟之道的儒家精神深刻影响了济南人的品格。老城区与新城区协调发展，生活便利度高。芙蓉街的小吃热闹非凡，烤地瓜与把子肉是最暖心的路边滋味。如果你欣赏厚道务实的齐鲁文化气质，渴望在一座有历史文化底蕴的省会城市中安稳生活，济南是最踏实的选择。"},
+{name:"烟台",province:"山东",tags:["自然型","美食型","休闲型"],kw:["葡萄酒之乡","海滨城市","苹果之乡"],p:{pace:35,food:82,history:60,tech:45,nature:80,nightlife:52,shopping:58,climate:40,housing:55,greenery:65},desc:"烟台是中国最著名的葡萄酒产区，张裕葡萄酒的百年历史赋予了这座城市浓厚的欧陆气质。苹果是烟台的农业名片，每逢秋季香气飘满整座城市。海鲜资源极为丰富，海胆、扇贝、鱼是餐桌上的日常主角。城市绿化优美，滨海公园散步是最惬意的日常。气候相对凉爽，夏日宜人。如果你热爱海滨自然与丰富美食，渴望在一座节奏不快、环境优美、生活成本合理的城市里安静生活，烟台是性价比极高的宜居之选。"},
+{name:"威海",province:"山东",tags:["自然型","休闲型","精致型"],kw:["宜居城市","海滨花园","清新空气"],p:{pace:25,food:75,history:55,tech:42,nature:88,nightlife:42,shopping:52,climate:38,housing:58,greenery:78},desc:"威海是中国宜居指数长期名列前茅的城市，海滨花园的美誉名副其实。城市规划整洁有序，绿化率极高，空气质量常年优良，被誉为中国最干净的城市之一。海鲜品质上乘，刺海参、海胆黄、鲍鱼是威海人的日常馈赠。生活节奏极为舒缓，人口密度低，没有大城市的拥挤与嘈杂。如果你追求最纯粹的高品质滨海生活，渴望在远离喧嚣的清净环境中安享每一个清晨，威海是你心中最理想的栖居之地。"},
+{name:"淄博",province:"山东",tags:["美食型","传统型","社交型"],kw:["烧烤之城","齐文化","陶瓷之乡"],p:{pace:50,food:90,history:82,tech:48,nature:42,nightlife:65,shopping:55,climate:35,housing:68,greenery:42},desc:"淄博因烧烤而火遍全国，小饼卷肉蘸酱的吃法让人欲罢不能，城市因此展现出热情好客的人文气质。作为齐文化的核心发源地，齐国故都的历史积淀深厚，临淄博物馆是了解先秦历史的绝佳窗口。陶瓷工艺历史悠久，淄博琉璃享誉全国。城市烟火气极浓，夜晚烧烤摊与炉火交织，是真实的市井生活写照。如果你热爱美食与社交，欣赏齐鲁文化的厚重，渴望在一座真诚热情的城市里体验最接地气的生活，淄博绝对不会让你失望。"},
+{name:"无锡",province:"江苏",tags:["商业型","传统型","精致型"],kw:["太湖明珠","工商名城","惠山泥人"],p:{pace:65,food:72,history:78,tech:68,nature:65,nightlife:55,shopping:72,climate:57,housing:38,greenery:68},desc:"无锡是长三角经济实力最强的城市之一，太湖流域的制造业与高科技产业高度发达。惠山古镇的泥人文化与荣毅仁家族的商业传奇赋予了无锡深厚的人文积淀。太湖蟹、太湖白鱼、水蜜桃是无锡的美食名片，精致而不失鲜美。城市规模适中，绿化优美，商业配套完善，生活质量极高。如果你追求兼顾经济发展与生活品质的城市，渴望在江南美景与雄厚产业之间找到完美平衡，无锡是绝佳之选。"},
+{name:"常州",province:"江苏",tags:["商业型","务实型","科技型"],kw:["新能源之都","恐龙园","运河文化"],p:{pace:65,food:70,history:72,tech:72,nature:55,nightlife:52,shopping:65,climate:55,housing:50,greenery:58},desc:"常州是中国新能源汽车产业最重要的聚集地之一，比亚迪、理想等品牌的核心产能在此落地，产业发展势头强劲。恐龙园是全国知名的主题乐园，为城市增添了独特的文化符号。运河文化历史悠久，古运河畔的街巷保留着江南城市的传统风貌。城市规模适中，节奏感较好，性价比在长三角城市群中表现突出。如果你从事新能源或制造业，渴望在产业高地中找到事业舞台，同时享受相对舒适的长三角生活，常州是一个务实的好选择。"},
+{name:"嘉兴",province:"浙江",tags:["传统型","文化型","精致型"],kw:["红船精神","江南水乡","粽子之乡"],p:{pace:45,food:72,history:82,tech:58,nature:62,nightlife:45,shopping:60,climate:57,housing:42,greenery:65},desc:"嘉兴是中国近现代史上具有特殊意义的城市，南湖红船承载着开天辟地的历史记忆。嘉兴粽子名扬全国，五芳斋的百年品牌是这座城市的美食骄傲。乌镇、西塘两座古镇闻名世界，江南水乡风情保存最为完整。城市位于上海与杭州之间，交通极为便利，是长三角一体化的核心受益区域。如果你热爱江南文化与历史，渴望在精致水乡生活与都市便利之间寻求平衡，嘉兴是一个颇具质感的安家之地。"},
+{name:"湖州",province:"浙江",tags:["自然型","文艺型","躺平型"],kw:["莫干山","江南水乡","丝绸之府"],p:{pace:25,food:70,history:78,tech:48,nature:85,nightlife:40,shopping:55,climate:58,housing:55,greenery:82},desc:"湖州是中国民宿经济最发达的城市之一，莫干山上的精品民宿吸引了无数向往田园生活的都市人。太湖南岸的湿地与水乡构成了浙北最美的自然风光。丝绸文化源远流长，湖丝天下无双的美誉延续千年。城市节奏舒缓，绿化丰富，是大城市边缘追求宁静生活的理想选择。如果你渴望在山林与湖水之间找到生活的诗意，用一种从容的姿态对抗快节奏的世界，湖州是你心目中那片不远处的世外桃源。"},
+{name:"南昌",province:"江西",tags:["传统型","文化型","务实型"],kw:["革命圣地","赣鄱文化","瓷都近邻"],p:{pace:60,food:78,history:75,tech:52,nature:58,nightlife:60,shopping:58,climate:60,housing:60,greenery:60},desc:"南昌是中国革命的重要策源地，八一起义纪念馆是每位中国人必到的精神地标。滕王阁俯瞰赣江，王勃的《滕王阁序》让这座楼宇在历史上熠熠生辉。赣鄱文化融汇南北，饮食上炒粉、瓦罐汤、藜蒿炒腊肉别具风味。城市发展提速明显，近年来新能源汽车与电子信息产业快速集聚。如果你寻求一个在中部快速崛起、生活成本合理、历史与现代相融合的省会城市，南昌是值得长期关注的发展高地。"},
+{name:"景德镇",province:"江西",tags:["文艺型","历史型","传统型"],kw:["瓷都","陶瓷文化","古窑文化"],p:{pace:20,food:68,history:90,tech:28,nature:65,nightlife:38,shopping:48,climate:60,housing:70,greenery:65},desc:"景德镇是世界陶瓷艺术之都，一千七百年的制瓷历史赋予了这座小城独一无二的文化身份。御窑厂遗址、古窑民俗博览区让人亲眼见证中国瓷器的千年传承。全球大量陶艺艺术家和手工业者聚集于此，形成了极为浓厚的文艺创作氛围。生活成本低廉，节奏舒缓，适合旅居创作。如果你对中国传统工艺有深厚的热情，渴望在一个充满手工艺气息的城市中寻找创作灵感与精神栖居，景德镇是全中国最独特的文化飞地之一。"},
+{name:"太原",province:"山西",tags:["历史型","传统型","务实型"],kw:["晋文化","醋都","能源之城"],p:{pace:50,food:78,history:85,tech:48,nature:38,nightlife:50,shopping:55,climate:28,housing:60,greenery:35},desc:"太原是晋文化的核心城市，晋商精神曾缔造了中国历史上最辉煌的商业帝国。平遥古城、乔家大院近在咫尺，是了解明清商业文明的最佳窗口。山西老陈醋的醇香贯穿了太原人的日常饮食，刀削面、过油肉是地道的晋味记忆。煤炭产业的历史积累正在向多元化经济转型，城市发展逐步提速。如果你对晋商历史文化充满兴趣，喜欢厚道朴实的北方生活方式，太原是一座有故事也有味道的城市。"},
+{name:"呼和浩特",province:"内蒙古",tags:["探索型","传统型","自然型"],kw:["草原之城","乳都","蒙古文化"],p:{pace:35,food:80,history:68,tech:38,nature:80,nightlife:45,shopping:48,climate:10,housing:68,greenery:40},desc:"呼和浩特是通往内蒙古大草原的门户城市，手把肉与奶茶是蒙古族饮食文化中最质朴也最打动人心的滋味。大青山下的城市格局开阔，草原风光出城即可抵达。中国乳业的核心产区在此聚集，伊利、蒙牛均发源于此。蒙古族的歌舞文化热情奔放，马背上的民族精神在这里延续。如果你向往草原的辽阔与自由，渴望感受少数民族文化的浓郁气息，同时寻找一个节奏适中的北方城市落脚，呼和浩特是颇具个性的选择。"},
+{name:"鄂尔多斯",province:"内蒙古",tags:["自然型","传统型","务实型"],kw:["羊绒之都","能源富城","草原风光"],p:{pace:35,food:78,history:60,tech:40,nature:80,nightlife:38,shopping:48,climate:15,housing:60,greenery:35},desc:"鄂尔多斯是中国人均GDP最高的城市之一，能源富集带来了丰厚的城市财富积累。羊绒产量占全球三分之一，是当之无愧的羊绒之都。成吉思汗陵是蒙古族最神圣的历史朝圣地，草原祭祀文化庄严肃穆。广袤的草地和毛乌素沙漠治理后的绿化景观令人惊叹。生活成本相对适中，城市建设现代整洁。如果你渴望草原的辽阔视野，追求宁静自然的生活方式，又不需要大城市的繁华与喧嚣，鄂尔多斯是一座低调而富庶的宜居城市。"},
+{name:"包头",province:"内蒙古",tags:["务实型","工业型","传统型"],kw:["草原钢城","稀土之都","北方重工"],p:{pace:50,food:75,history:55,tech:52,nature:55,nightlife:42,shopping:50,climate:12,housing:68,greenery:38},desc:"包头是中国稀土工业的核心基地，全球最大的稀土矿床白云鄂博就在这里，工业底蕴极为雄厚。钢铁产业发达，包钢曾是中国最重要的钢铁生产基地之一。东河区的老街市井气息浓厚，北方蒙汉融合的饮食文化独具特色。黄河湿地公园生态优美，是城市难得的自然调节空间。生活成本低廉，北方豪爽气质浓郁。如果你在工业能源或稀土新材料领域寻求发展，并欣赏内蒙古豁达的生活气质，包头是一个务实进取的选择。"},
+{name:"襄阳",province:"湖北",tags:["历史型","传统型","美食型"],kw:["卧龙出山","汉江之畔","牛肉面"],p:{pace:42,food:80,history:85,tech:40,nature:60,nightlife:50,shopping:50,climate:52,housing:68,greenery:55},desc:"襄阳是诸葛亮出山之地，隆中对的历史传说让这座城市承载着深厚的三国文化记忆。古城墙完整保留，汉江穿城而过，江边夜景开阔壮美。襄阳牛肉面是当地人每天清晨的灵魂仪式，麻辣鲜香令人欲罢不能。城市节奏适中，房价在湖北省处于较低水平，性价比高。如果你热爱三国历史文化，渴望在一座有深厚人文积淀、生活压力不大的中等城市安家，襄阳是兼顾文化体验与生活品质的绝佳选择。"},
+{name:"宜昌",province:"湖北",tags:["自然型","传统型","休闲型"],kw:["三峡门户","峡江风光","屈原故里"],p:{pace:35,food:72,history:72,tech:38,nature:88,nightlife:45,shopping:48,climate:62,housing:68,greenery:80},desc:"宜昌是三峡大坝所在地，长江峡江风光在这里达到最壮观的顶点。屈原故里秭归就在城市周边，端午文化在这里被最完整地传承。清江画廊、三峡人家等自然景区风光旖旎，户外探险资源丰富。城市依山傍水，绿化率高，气候温润舒适，全国宜居城市排名稳定靠前。如果你热爱壮阔的山水自然，渴望在历史文化与峡江风光的双重滋养下过一种远离喧嚣的生活，宜昌是湖北最值得旅居的城市之一。"},
+{name:"汕头",province:"广东",tags:["美食型","传统型","商业型"],kw:["潮汕文化","功夫茶","海鲜天堂"],p:{pace:55,food:95,history:75,tech:45,nature:65,nightlife:62,shopping:58,climate:80,housing:55,greenery:60},desc:"汕头是潮汕文化的腹地，也是中国美食体系中最精致、最讲究的地方之一。功夫茶文化在这里被发挥到极致，从选茶到冲泡每一步都凝聚着潮汕人对生活品质的执着。生腌海鲜是全国吃货趋之若鹜的极鲜体验，卤鹅、牛肉火锅、条汤让人一吃难忘。宗族文化深厚，凝聚力极强，潮汕商帮的全球影响力令人叹服。如果你是美食至上主义者，对传统文化有深厚情感，渴望在一座充满仪式感与人情味的城市里生活，汕头将带给你最浓郁的市井幸福感。"},
+{name:"中山",province:"广东",tags:["传统型","文化型","休闲型"],kw:["伟人故里","花木之城","岭南文化"],p:{pace:42,food:75,history:70,tech:55,nature:62,nightlife:52,shopping:60,climate:80,housing:50,greenery:68},desc:"中山是孙中山先生的故乡，伟人精神赋予了这座城市一种特别的历史厚重感。花木产业发达，被誉为花城，每逢春节花市绚烂夺目，岭南园林美学在这里得到充分展现。美食上，中山脆肉鲩、杏仁饼、小榄菊花宴各具特色。城市规模适中，宜居指数高，紧邻珠海与广州，区位优势明显。如果你欣赏岭南文化的细腻与包容，渴望在一座有历史积淀又节奏宜人的粤港澳城市中安家，中山是一个充满温度的选择。"},
+{name:"惠州",province:"广东",tags:["自然型","休闲型","精致型"],kw:["东方夏威夷","西湖美景","宜居城市"],p:{pace:35,food:75,history:70,tech:55,nature:85,nightlife:50,shopping:58,climate:80,housing:52,greenery:80},desc:"惠州拥有中国最美的城市西湖之一，苏东坡曾在此留下'日啖荔枝三百颗，不辞长作岭南人'的千古名句。巽寮湾、双月湾等海滩被誉为东方夏威夷，是深圳广州周边最受欢迎的度假胜地。城市绿化率极高，空气质量优良，生活节奏舒适。毗邻深圳，大量高收入人群选择在惠州置业，以相对合理的成本享受高质量的自然生活。如果你渴望在都市圈的辐射范围内找到一座有山有海、有历史有温度的宜居城市，惠州是你的理想答案。"},
+{name:"佛山",province:"广东",tags:["传统型","美食型","工业型"],kw:["武术之乡","制造业重镇","岭南文化"],p:{pace:70,food:88,history:78,tech:65,nature:45,nightlife:65,shopping:72,climate:80,housing:35,greenery:58},desc:"武术之乡，制造业重镇。岭南美食荟萃，传统文化与现代工业并存，适合务实进取的你。"},
+{name:"东莞",province:"广东",tags:["商业型","务实型","移民型"],kw:["制造业","莞式服务","外来务工城市"],p:{pace:85,food:78,history:45,tech:72,nature:40,nightlife:70,shopping:70,climate:80,housing:40,greenery:52},desc:"制造业重镇，多元移民城市。商业活跃，生活便利，适合务实打拼的你。"},
+{name:"江门",province:"广东",tags:["传统型","侨乡型","休闲型"],kw:["侨乡文化","开平碉楼","粤西风情"],p:{pace:30,food:80,history:72,tech:40,nature:65,nightlife:48,shopping:52,climate:82,housing:60,greenery:68},desc:"华侨之乡，开平碉楼世界遗产。侨乡文化独特，生活节奏悠闲，适合热爱传统文化的你。"},
+{name:"芜湖",province:"安徽",tags:["文艺型","科技型","发展型"],kw:["小上海","奇瑞汽车","长三角新贵"],p:{pace:60,food:70,history:68,tech:62,nature:58,nightlife:55,shopping:60,climate:55,housing:55,greenery:58},desc:"长江城市，小上海之称。奇瑞汽车重镇，城市快速发展，适合追求发展机遇的你。"},
+{name:"赣州",province:"江西",tags:["历史型","自然型","传统型"],kw:["宋城博物馆","脐橙之乡","客家文化"],p:{pace:35,food:75,history:82,tech:38,nature:72,nightlife:42,shopping:48,climate:65,housing:72,greenery:72},desc:"宋城博物馆，客家文化重镇。脐橙飘香，历史建筑保存完好，适合热爱历史文化的你。"},
+{name:"舟山",province:"浙江",tags:["自然型","美食型","休闲型"],kw:["东海明珠","普陀山","海鲜圣地"],p:{pace:20,food:88,history:65,tech:38,nature:92,nightlife:42,shopping:48,climate:60,housing:55,greenery:80},desc:"东海明珠，普陀圣地。海鲜极为丰盛，适合热爱海洋自然与心灵静修的你。"},
+{name:"丽水",province:"浙江",tags:["自然型","躺平型","文艺型"],kw:["秀山丽水","摄影圣地","原生态"],p:{pace:10,food:68,history:65,tech:30,nature:95,nightlife:30,shopping:40,climate:65,housing:78,greenery:95},desc:"秀山丽水，摄影天堂。原生态自然环境，适合追求原始自然与内心宁静的旅居者。"},
+{name:"台州",province:"浙江",tags:["商业型","务实型","自然型"],kw:["民营经济","山海城市","硬核台州"],p:{pace:70,food:75,history:68,tech:62,nature:75,nightlife:52,shopping:65,climate:62,housing:45,greenery:68},desc:"民营经济硬汉，山海城市。经济活跃，台州人务实拼搏，山海资源丰富，适合创业奋斗的你。"},
+{name:"金华",province:"浙江",tags:["传统型","美食型","务实型"],kw:["义乌近邻","火腿之乡","婺文化"],p:{pace:55,food:78,history:75,tech:55,nature:60,nightlife:50,shopping:68,climate:58,housing:52,greenery:60},desc:"义乌近邻，金华火腿发源地。婺文化深厚，经济活跃，适合务实生活的你。"},
+{name:"衢州",province:"浙江",tags:["自然型","传统型","文化型"],kw:["孔子世家","钱江源头","南孔圣地"],p:{pace:25,food:70,history:82,tech:38,nature:80,nightlife:35,shopping:45,climate:60,housing:72,greenery:80},desc:"南孔圣地，儒学文化传承地。钱江源头，山水秀美，适合热爱传统文化与自然的你。"},
+{name:"柳州",province:"广西",tags:["美食型","工业型","个性型"],kw:["螺蛳粉发源地","工业城市","奇特地貌"],p:{pace:55,food:92,history:65,tech:52,nature:70,nightlife:62,shopping:55,climate:75,housing:65,greenery:72},desc:"螺蛳粉故乡，工业重镇。地貌奇特壮美，适合热爱独特美食与个性生活的你。"},
+{name:"泸州",province:"四川",tags:["美食型","传统型","自然型"],kw:["酒城","长江之滨","川南门户"],p:{pace:30,food:85,history:72,tech:35,nature:68,nightlife:55,shopping:48,climate:65,housing:72,greenery:65},desc:"中国酒城，长江之滨。泸州老窖飘香，川南风情独特，适合热爱美酒文化的你。"},
+{name:"绵阳",province:"四川",tags:["科技型","文化型","休闲型"],kw:["科技城","李白故里","川北明珠"],p:{pace:40,food:82,history:75,tech:78,nature:62,nightlife:55,shopping:55,climate:62,housing:65,greenery:62},desc:"中国科技城，李白故里。科研实力强劲，川北明珠，适合科技人才与文化爱好者。"},
+{name:"乐山",province:"四川",tags:["自然型","历史型","文艺型"],kw:["乐山大佛","峨眉山","佛教文化"],p:{pace:20,food:85,history:85,tech:28,nature:90,nightlife:42,shopping:45,climate:65,housing:72,greenery:85},desc:"世界遗产宝地，乐山大佛与峨眉山。宗教文化深厚，生活悠闲，适合追求自然与文化的你。"},
+{name:"都江堰",province:"四川",tags:["自然型","历史型","休闲型"],kw:["都江堰水利","熊猫基地近邻","川西门户"],p:{pace:15,food:80,history:88,tech:25,nature:90,nightlife:38,shopping:42,climate:65,housing:75,greenery:88},desc:"都江堰世界遗产，大熊猫近邻。川西门户，山水秀丽，适合热爱自然与历史的你。"},
+{name:"日照",province:"山东",tags:["自然型","美食型","休闲型"],kw:["阳光海岸","绿茶之乡","新兴海滨"],p:{pace:25,food:78,history:50,tech:38,nature:85,nightlife:45,shopping:48,climate:42,housing:65,greenery:68},desc:"阳光海岸，绿茶之乡。海水清澈，适合热爱海滨度假与绿色生活的你。"},
+{name:"莆田",province:"福建",tags:["传统型","美食型","文化型"],kw:["妈祖圣地","莆仙文化","荔枝"],p:{pace:40,food:80,history:82,tech:42,nature:58,nightlife:48,shopping:52,climate:72,housing:45,greenery:60},desc:"妈祖信仰发源地，莆仙文化独特。传统节日民俗丰富，荔枝飘香，适合热爱传统民俗的你。"},
+{name:"漳州",province:"福建",tags:["自然型","传统型","休闲型"],kw:["水仙花乡","土楼近邻","慢生活"],p:{pace:25,food:78,history:72,tech:38,nature:78,nightlife:42,shopping:48,climate:75,housing:65,greenery:78},desc:"水仙花之乡，土楼文化近邻。生活节奏舒缓，气候温暖，适合追求田园慢生活的你。"},
+{name:"潍坊",province:"山东",tags:["传统型","文化型","务实型"],kw:["风筝之都","民俗文化","山东传统"],p:{pace:45,food:75,history:75,tech:50,nature:42,nightlife:48,shopping:52,climate:35,housing:65,greenery:42},desc:"风筝之都，世界风筝节举办地。传统文化浓郁，生活朴实，适合务实传统的你。"},
+{name:"临沂",province:"山东",tags:["历史型","商业型","务实型"],kw:["红色文化","商贸名城","书圣故里"],p:{pace:60,food:78,history:80,tech:48,nature:48,nightlife:52,shopping:58,climate:35,housing:65,greenery:42},desc:"书圣王羲之故里，红色文化名城。商贸发达，沂蒙精神传承，适合务实踏实的你。"},
+{name:"南通",province:"江苏",tags:["传统型","商业型","精致型"],kw:["江海之城","近代工业","张謇文化"],p:{pace:55,food:72,history:75,tech:58,nature:58,nightlife:50,shopping:62,climate:55,housing:48,greenery:62},desc:"江海交汇之城，张謇实业精神发源地。历史文化厚重，适合务实追求传统生活的你。"},
+{name:"徐州",province:"江苏",tags:["历史型","传统型","务实型"],kw:["汉文化发源","彭城古都","苏北中心"],p:{pace:55,food:75,history:88,tech:50,nature:48,nightlife:55,shopping:58,climate:38,housing:58,greenery:42},desc:"汉文化发源地，彭城古都。历史积淀深厚，适合热爱汉文化历史的务实之人。"},
+{name:"唐山",province:"河北",tags:["工业型","传统型","务实型"],kw:["曹妃甸","北方工业","抗震精神"],p:{pace:60,food:75,history:65,tech:55,nature:45,nightlife:50,shopping:55,climate:28,housing:60,greenery:40},desc:"北方工业重镇，抗震英雄城市。海鲜丰富，生活务实，适合踏实奋斗的你。"},
+{name:"石家庄",province:"河北",tags:["传统型","务实型","发展型"],kw:["华北重镇","医药之都","直隶文化"],p:{pace:65,food:75,history:70,tech:55,nature:35,nightlife:55,shopping:60,climate:30,housing:55,greenery:35},desc:"华北重镇，医药工业发达。交通便利，生活成本适中，适合务实稳健的你。"},
+{name:"保定",province:"河北",tags:["历史型","传统型","文化型"],kw:["直隶总督府","莲池书院","面食文化"],p:{pace:45,food:75,history:85,tech:45,nature:42,nightlife:48,shopping:52,climate:30,housing:65,greenery:40},desc:"直隶文化名城，保定驴肉火烧。历史底蕴深厚，大学城氛围浓，适合热爱历史文化的你。"},
+{name:"秦皇岛",province:"河北",tags:["自然型","休闲型","度假型"],kw:["渤海明珠","避暑之地","长城入海"],p:{pace:20,food:75,history:68,tech:35,nature:88,nightlife:45,shopping:50,climate:38,housing:62,greenery:68},desc:"渤海明珠，长城入海处。北戴河避暑，海鲜鲜美，适合热爱海滨与历史的你。"},
+{name:"廊坊",province:"河北",tags:["务实型","商业型","京畿型"],kw:["京畿要地","京东近郊","电商物流"],p:{pace:70,food:68,history:55,tech:62,nature:35,nightlife:50,shopping:60,climate:28,housing:42,greenery:38},desc:"紧邻北京，京畿要地。电商物流发达，适合追求首都周边发展机遇的你。"},
+{name:"湘潭",province:"湖南",tags:["历史型","文化型","务实型"],kw:["伟人故里","湘莲之乡","湖湘文化"],p:{pace:45,food:82,history:80,tech:48,nature:50,nightlife:55,shopping:50,climate:60,housing:65,greenery:52},desc:"伟人故里，湘莲之乡。湖湘文化深厚，生活成本低，适合热爱历史与简单生活的你。"},
+{name:"株洲",province:"湖南",tags:["工业型","务实型","发展型"],kw:["中国动力谷","高铁产业","工业重镇"],p:{pace:65,food:82,history:60,tech:72,nature:48,nightlife:55,shopping:55,climate:60,housing:60,greenery:50},desc:"中国动力谷，高铁产业发源地。工业技术雄厚，适合追求科技工业发展的你。"},
+{name:"长株潭",province:"湖南",tags:["科技型","文化型","发展型"],kw:["中部崛起","工程机械","湖湘文化"],p:{pace:70,food:88,history:68,tech:72,nature:55,nightlife:72,shopping:65,climate:60,housing:55,greenery:58},desc:"中部崛起核心，工程机械重镇。湖湘文化独特，辣味十足，适合有事业抱负的你。"}
+];
+
+const QUESTIONS=[
+{id:1,cat:"🕐 生活节奏",q:"你更喜欢哪种生活节奏？",opts:[{t:"快节奏，追求高效与忙碌",w:{pace:30}},{t:"慢节奏，享受悠闲时光",w:{pace:-30}},{t:"适中节奏，张弛有度",w:{pace:0}},{t:"根据心情切换，随心而动",w:{pace:5}}]},
+{id:2,cat:"🕐 生活节奏",q:"周末你最理想的安排是？",opts:[{t:"参加各种活动，充实每一刻",w:{pace:25,nightlife:10}},{t:"适度安排，有活动也有休息",w:{pace:0}},{t:"在家休息，偶尔出门",w:{pace:-20}},{t:"完全放空，什么都不做",w:{pace:-30,nature:10}}]},
+{id:3,cat:"🕐 生活节奏",q:"你对城市通勤的接受程度？",opts:[{t:"无所谓，只要机会好就行",w:{pace:20,tech:10}},{t:"可以接受1小时内",w:{pace:5}},{t:"希望30分钟内搞定",w:{pace:-10}},{t:"最好步行或骑车上班",w:{pace:-25,greenery:10}}]},
+{id:4,cat:"🕐 生活节奏",q:"你觉得一座好城市应该有什么感觉？",opts:[{t:"充满活力，永远有新鲜事",w:{pace:20,nightlife:15}},{t:"有烟火气，生活有滋有味",w:{pace:-5,food:15}},{t:"宁静安逸，心态平和",w:{pace:-25}},{t:"高效便捷，一切井井有条",w:{pace:15,tech:15}}]},
+{id:5,cat:"🕐 生活节奏",q:"你对加班的态度是？",opts:[{t:"能接受，事业第一",w:{pace:25,housing:-10}},{t:"偶尔可以，但要有补偿",w:{pace:5}},{t:"尽量避免，生活更重要",w:{pace:-15}},{t:"坚决不加班，时间是我的",w:{pace:-30}}]},
+{id:6,cat:" 美食偏好",q:"你最喜欢哪种饮食风格？",opts:[{t:"麻辣鲜香，吃得过瘾",w:{food:30}},{t:"清淡精致，注重食材本味",w:{food:-15}},{t:"丰盛多样，什么都想尝",w:{food:20}},{t:"国际化，西餐日料都爱",w:{food:5,tech:10}}]},
+{id:7,cat:"🍜 美食偏好",q:"你对街头小吃的态度？",opts:[{t:"是灵魂！必须经常去吃",w:{food:30,history:5}},{t:"偶尔吃吃，换换口味",w:{food:10}},{t:"不太感兴趣，更喜欢餐厅",w:{food:-10}},{t:"讲究卫生，一般不吃路边摊",w:{food:-20}}]},
+{id:8,cat:"🍜 美食偏好",q:"你理想中的早餐是？",opts:[{t:"丰盛热闹，豆浆油条包子一起上",w:{food:25}},{t:"简单快手，面包咖啡搞定",w:{pace:10,tech:5}},{t:"精致讲究，早茶或地道小吃",w:{food:20,history:10}},{t:"随便吃或不吃，省时间",w:{pace:15}}]},
+{id:9,cat:"🍜 美食偏好",q:"对于地方特色美食，你的态度是？",opts:[{t:"这是了解一座城市最好的方式",w:{food:30,history:10}},{t:"喜欢尝鲜但不执着",w:{food:10}},{t:"还好，美食不是选城市的核心因素",w:{food:-10}},{t:"不太在意，吃饱就行",w:{food:-25}}]},
+{id:10,cat:"🍜 美食偏好",q:"你能接受多辣的食物？",opts:[{t:"越辣越好，无辣不欢",w:{food:25}},{t:"中等辣，微辣才舒服",w:{food:10}},{t:"只接受微辣",w:{food:-5}},{t:"完全不能吃辣",w:{food:-20}}]},
+{id:11,cat:"🏛️ 文化历史",q:"你对历史古迹的兴趣程度？",opts:[{t:"非常感兴趣，每个古迹都想逛",w:{history:30}},{t:"有兴趣，但不是必须",w:{history:10}},{t:"偶尔去逛逛，打打卡",w:{history:-5}},{t:"不太感兴趣，更喜欢现代空间",w:{history:-25}}]},
+{id:12,cat:"️ 文化历史",q:"选择城市时，历史底蕴的重要性？",opts:[{t:"非常重要，历史越厚重越好",w:{history:30}},{t:"比较重要，有历史感更好",w:{history:15}},{t:"一般，有当然好，没有也无所谓",w:{history:-5}},{t:"不重要，现代感更吸引我",w:{history:-20}}]},
+{id:13,cat:"🏛️ 文化历史",q:"你对博物馆、纪念馆的态度？",opts:[{t:"最爱去的地方之一",w:{history:30}},{t:"偶尔去，拓展见识",w:{history:10}},{t:"除非特别有名，一般不去",w:{history:-10}},{t:"不太感兴趣，太枯燥了",w:{history:-25}}]},
+{id:14,cat:"🏛️ 文化历史",q:"你最向往哪类文化体验？",opts:[{t:"深厚传统文化，古城古村探访",w:{history:30}},{t:"现代都市文化，展览音乐剧",w:{history:-10,nightlife:15}},{t:"少数民族文化，多元民俗体验",w:{history:15,nature:10}},{t:"前沿科技文化，创新创业氛围",w:{history:-20,tech:25}}]},
+{id:15,cat:"🏛️ 文化历史",q:"如果城市有老城区，你会？",opts:[{t:"频繁去逛，感受历史气息",w:{history:25}},{t:"偶尔去，换换心情",w:{history:5}},{t:"偶尔打卡，不会常去",w:{history:-5}},{t:"不太会去，更喜欢新区",w:{history:-20}}]},
+{id:16,cat:"🛍️ 购物偏好",q:"你对购物的热情程度？",opts:[{t:"非常热爱，购物是生活乐趣",w:{shopping:30}},{t:"适度购物，按需消费",w:{shopping:0}},{t:"不太热衷，有需要才买",w:{shopping:-20}},{t:"极简主义，尽量少买",w:{shopping:-30}}]},
+{id:17,cat:"🛍️ 购物偏好",q:"你对奢侈品或高档商场的态度？",opts:[{t:"很感兴趣，偶尔奢侈一下",w:{shopping:25}},{t:"逛逛可以，但很少消费",w:{shopping:5}},{t:"没什么兴趣",w:{shopping:-15}},{t:"完全不感冒",w:{shopping:-25}}]},
+{id:18,cat:"🛍️ 购物偏好",q:"你的消费方式更倾向于？",opts:[{t:"线下逛街，享受购物过程",w:{shopping:20,nightlife:10}},{t:"线上网购，方便快捷",w:{shopping:5,tech:10}},{t:"二手购物，环保且省钱",w:{shopping:-10}},{t:"能不买就不买",w:{shopping:-25,housing:15}}]},
+{id:19,cat:"🛍️ 购物偏好",q:"城市有大型购物中心对你的吸引力？",opts:[{t:"非常重要，没商场很难受",w:{shopping:30}},{t:"有的话更好，但不是必须",w:{shopping:5}},{t:"影响不大",w:{shopping:-10}},{t:"没有更好，我更喜欢自然",w:{shopping:-25,nature:15}}]},
+{id:20,cat:"💻 科技偏好",q:"你对科技行业的兴趣？",opts:[{t:"非常感兴趣，想在科技圈发展",w:{tech:30}},{t:"有些兴趣，科技生活更方便",w:{tech:15}},{t:"一般，科技只是工具",w:{tech:-5}},{t:"不太感兴趣，更重视传统行业",w:{tech:-20}}]},
+{id:21,cat:"💻 科技偏好",q:"你对智慧城市、科技设施的看法？",opts:[{t:"越智能越好，科技改变生活",w:{tech:30}},{t:"实用就好，锦上添花",w:{tech:10}},{t:"无所谓，不影响生活质量",w:{tech:-5}},{t:"有点抵触，更喜欢自然人文",w:{tech:-20}}]},
+{id:22,cat:"💻 科技偏好",q:"你对创业和创新氛围的重视程度？",opts:[{t:"非常重要，想在创业生态中发展",w:{tech:30,pace:15}},{t:"有一定重视，利于职业发展",w:{tech:15}},{t:"有没有无所谓",w:{tech:-5}},{t:"不太在意，稳定更重要",w:{tech:-15,housing:10}}]},
+{id:23,cat:"💻 科技偏好",q:"你使用智能设备的频率？",opts:[{t:"大量使用，拥抱科技生活",w:{tech:25}},{t:"日常使用，手机支付够了",w:{tech:10}},{t:"偶尔用用",w:{tech:-5}},{t:"更喜欢传统方式",w:{tech:-20}}]},
+{id:24,cat:"🌆 城市氛围",q:"你喜欢哪种城市社交氛围？",opts:[{t:"热情开放，容易交到朋友",w:{nightlife:15,food:10}},{t:"包容多元，接受各种文化",w:{tech:10,shopping:10}},{t:"文艺清雅，有思想深度",w:{history:15}},{t:"安静低调，不打扰彼此",w:{pace:-15,nature:10}}]},
+{id:25,cat:"🌆 城市氛围",q:"你对城市房租/生活成本的敏感度？",opts:[{t:"愿意付高价换取好生活",w:{housing:-25,shopping:15}},{t:"能接受中等偏高的成本",w:{housing:-10}},{t:"希望性价比高一些",w:{housing:15}},{t:"越便宜越好，存钱最重要",w:{housing:30}}]},
+{id:26,cat:"🌆 城市氛围",q:"对于城市国际化程度，你的期望？",opts:[{t:"越国际化越好，多元文化令人兴奋",w:{tech:15,shopping:15}},{t:"有一定国际氛围就好",w:{tech:5}},{t:"无所谓，本土文化更重要",w:{history:10}},{t:"地道本土最好，国际化没什么吸引力",w:{history:20,tech:-15}}]},
+{id:27,cat:"🌆 城市氛围",q:"你对城市人口规模的偏好？",opts:[{t:"越大越好，人多才有活力",w:{pace:20,nightlife:15}},{t:"中等城市，繁荣但不拥挤",w:{pace:5}},{t:"小而美，有温度的城市",w:{pace:-20,greenery:15}},{t:"越小越好，能认识每一条街",w:{pace:-30,nature:20}}]},
+{id:28,cat:"🌆 城市氛围",q:"你理想城市的主色调是？",opts:[{t:"现代银灰，高楼林立的都市感",w:{pace:20,tech:15}},{t:"古朴砖红，历史沉淀的温暖感",w:{history:25}},{t:"郁郁葱葱，自然与城市融合",w:{greenery:25,nature:20}},{t:"热烈橙红，烟火气十足的市井感",w:{food:20,nightlife:15}}]},
+{id:29,cat:"🌙 夜生活",q:"你对夜生活的热情？",opts:[{t:"非常喜欢，夜晚才是城市的灵魂",w:{nightlife:30}},{t:"偶尔出去嗨，但不频繁",w:{nightlife:10}},{t:"更喜欢安静的夜晚",w:{nightlife:-15}},{t:"不太感兴趣，早睡早起",w:{nightlife:-30}}]},
+{id:30,cat:" 夜生活",q:"你理想的夜晚是？",opts:[{t:"蹦迪喝酒，放飞自我",w:{nightlife:30}},{t:"夜市美食，与朋友聊天",w:{nightlife:20,food:15}},{t:"看书喝茶，安静充电",w:{nightlife:-20}},{t:"刷手机追剧，居家享受",w:{nightlife:-25}}]},
+{id:31,cat:"🌙 夜生活",q:"对城市夜景的重视程度？",opts:[{t:"非常重要，夜景美是加分项",w:{nightlife:25}},{t:"有的话更好",w:{nightlife:10}},{t:"不太在意",w:{nightlife:-10}},{t:"完全不在乎，我早睡",w:{nightlife:-25}}]},
+{id:32,cat:"🌙 夜生活",q:"你对24小时便利店的依赖程度？",opts:[{t:"非常依赖，深夜必需品",w:{nightlife:20,pace:10}},{t:"偶尔用一下",w:{nightlife:5}},{t:"基本不用",w:{nightlife:-15}},{t:"从来不用，我的作息很规律",w:{nightlife:-25}}]},
+{id:33,cat:"🌿 自然环境",q:"自然环境在你选择城市时有多重要？",opts:[{t:"最重要的因素之一",w:{nature:30,greenery:15}},{t:"比较重要，但非唯一考量",w:{nature:15}},{t:"一般重要",w:{nature:-5}},{t:"不重要，城市配套更重要",w:{nature:-25}}]},
+{id:34,cat:" 自然环境",q:"你向往哪种自然景观？",opts:[{t:"高山雪峰，壮阔天际线",w:{nature:30,climate:-10}},{t:"海滨沙滩，蓝天白云",w:{nature:25,climate:20}},{t:"江南水乡，小桥流水",w:{nature:15,history:15}},{t:"城市公园就够了",w:{nature:-15}}]},
+{id:35,cat:"🌿 自然环境",q:"你多久会去一次大自然（登山、徒步等）？",opts:[{t:"每周，是生活必需品",w:{nature:30,greenery:15}},{t:"每月，定期解压",w:{nature:15}},{t:"偶尔，几个月一次",w:{nature:-5}},{t:"很少去，城市已经满足我",w:{nature:-25}}]},
+{id:36,cat:"🌿 自然环境",q:"城市周边有山有水对你的吸引力？",opts:[{t:"非常重要，周末必须能出去玩",w:{nature:30}},{t:"有的话更好，但不是必须",w:{nature:10}},{t:"可有可无",w:{nature:-5}},{t:"不在乎，更关心城市本身",w:{nature:-20}}]},
+{id:37,cat:"🌳 城市绿化",q:"你对城市绿化水平的要求？",opts:[{t:"越绿越好，绿化是城市灵魂",w:{greenery:30}},{t:"有一定绿化就够了",w:{greenery:10}},{t:"有公园就好，不用太多",w:{greenery:-5}},{t:"无所谓，绿化不影响我",w:{greenery:-25}}]},
+{id:38,cat:"🌳 城市绿化",q:"你喜欢步行在有行道树的街道上吗？",opts:[{t:"非常喜欢，是城市品质的体现",w:{greenery:25}},{t:"喜欢，但不是必须",w:{greenery:10}},{t:"无所谓",w:{greenery:-5}},{t:"不太注意这些",w:{greenery:-20}}]},
+{id:39,cat:"🌳 城市绿化",q:"空气质量对你选择城市有多大影响？",opts:[{t:"非常重要，空气差是硬伤",w:{greenery:25,nature:15}},{t:"比较重要，好空气加分",w:{greenery:10}},{t:"一般，习惯了就好",w:{greenery:-5}},{t:"不太重要，工作机会优先",w:{greenery:-20,tech:10}}]},
+{id:40,cat:"🌳 城市绿化",q:"你愿意为绿色宜居城市接受更低收入吗？",opts:[{t:"愿意，生活质量更重要",w:{greenery:25,housing:15}},{t:"愿意牺牲一点点",w:{greenery:10}},{t:"不太愿意",w:{greenery:-10}},{t:"不愿意，收入最重要",w:{greenery:-25,tech:15}}]},
+{id:41,cat:"🏠 居住成本",q:"你对房价/租金的承受意愿？",opts:[{t:"高房价可以接受，大城市值得",w:{housing:-30}},{t:"中等偏高可以接受",w:{housing:-10}},{t:"希望性价比高，不想被房价压垮",w:{housing:20}},{t:"房价越低越好，存钱买房更重要",w:{housing:30}}]},
+{id:42,cat:" 居住成本",q:"你买房/租房最看重什么？",opts:[{t:"地段，宁愿小也要在核心区",w:{housing:-20,pace:15}},{t:"环境，绿化好交通方便",w:{greenery:15,housing:5}},{t:"面积，宁愿远一点住得宽敞",w:{housing:20}},{t:"价格，花最少的钱住最大的",w:{housing:30}}]},
+{id:43,cat:"🏠 居住成本",q:"你对未来10年在哪个城市买房的规划？",opts:[{t:"一线城市，哪怕很贵",w:{housing:-30,pace:20}},{t:"强二线，平衡发展与生活",w:{housing:0}},{t:"省会或宜居城市",w:{housing:20}},{t:"小城市，轻松还款最重要",w:{housing:30}}]},
+{id:44,cat:"🏠 居住成本",q:"经济压力对你生活质量的影响？",opts:[{t:"愿意为好城市承担压力",w:{housing:-20}},{t:"适度压力可以接受",w:{housing:-5}},{t:"希望财务相对宽松",w:{housing:15}},{t:"不想有任何财务压力",w:{housing:30}}]},
+{id:45,cat:"🌤️ 气候偏好",q:"你最喜欢哪种气候？",opts:[{t:"四季分明，每季都有特色",w:{climate:10}},{t:"温暖湿润，春秋最舒适",w:{climate:40}},{t:"热带温暖，全年阳光",w:{climate:70}},{t:"凉爽干燥，夏天不热",w:{climate:-10}}]},
+{id:46,cat:"️ 气候偏好",q:"你能接受的最冷温度？",opts:[{t:"零下十几度都没问题",w:{climate:-30}},{t:"零下几度可以接受",w:{climate:-10}},{t:"不低于0度就好",w:{climate:10}},{t:"希望全年不低于10度",w:{climate:30}}]},
+{id:47,cat:"🌤️ 气候偏好",q:"你对夏天高温的接受程度？",opts:[{t:"完全可以接受，热就热呗",w:{climate:20}},{t:"能接受，但希望有空调",w:{climate:10}},{t:"有点难受，不太喜欢太热",w:{climate:-10}},{t:"非常排斥高温，热死人",w:{climate:-25}}]},
+{id:48,cat:"🌤️ 气候偏好",q:"你对潮湿气候的接受程度？",opts:[{t:"完全接受，润润的挺好",w:{climate:15}},{t:"一般接受，还好",w:{climate:5}},{t:"不太喜欢，太粘腻了",w:{climate:-10}},{t:"非常排斥，宁愿干燥",w:{climate:-20}}]},
+{id:49,cat:"🌤️ 气候偏好",q:"对于下雪，你的态度是？",opts:[{t:"非常喜欢，雪景太美了",w:{climate:-25}},{t:"偶尔下雪就好，不要太多",w:{climate:5}},{t:"不喜欢雪，太麻烦了",w:{climate:20}},{t:"完全不想看见雪",w:{climate:35}}]},
+{id:50,cat:"️ 气候偏好",q:"最理想的居住气候描述是？",opts:[{t:"春城永春，四季如春",w:{climate:60}},{t:"暖冬凉夏，全年舒适",w:{climate:40}},{t:"大陆性气候，四季鲜明",w:{climate:15}},{t:"北方干冷，冬有暖气夏清凉",w:{climate:-20}}]}
+];
+
+let current=0,answers={},autoTimer=null;
+
+function showPage(id){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo(0,0);
+}
+
+function calcMatch(prefs,city){
+  const dims=["pace","food","history","tech","nature","nightlife","shopping","climate","housing","greenery"];
+  const s=dims.map(d=>100-Math.abs((prefs[d]||50)-(city.p[d]||50)));
+  return Math.round(s.reduce((a,b)=>a+b,0)/dims.length);
+}
+
+function buildPrefs(ans){
+  const base={pace:50,food:50,history:50,tech:50,nature:50,nightlife:50,shopping:50,climate:50,housing:50,greenery:50};
+  Object.values(ans).forEach(w=>{Object.entries(w).forEach(([k,v])=>{base[k]=Math.max(0,Math.min(100,base[k]+v));})});
+  return base;
+}
+
+function checkPwd(){
+  const v=document.getElementById('pw-input').value;
+  const err=document.getElementById('pw-err');
+  const inp=document.getElementById('pw-input');
+  if(v==='9900'){showPage('page-intro');}
+  else{
+    err.style.display='block';
+    inp.style.border='2px solid #EF4444';
+    inp.style.animation='pwShake 0.4s ease';
+    setTimeout(()=>{inp.style.animation='';},400);
+  }
+}
+document.getElementById('pw-input').addEventListener('keydown',e=>{if(e.key==='Enter')checkPwd();});
+
+function startQuiz(){current=0;answers={};renderQ();showPage('page-quiz');}
+
+function renderQ(){
+  const q=QUESTIONS[current];
+  const total=QUESTIONS.length;
+  const pct=Math.round(((current+1)/total)*100);
+  document.getElementById('q-cat').textContent=q.cat;
+  document.getElementById('q-count').textContent='问题 '+(current+1)+' / '+total;
+  document.getElementById('q-pct').textContent=pct+'%';
+  document.getElementById('progress-bar').style.width=pct+'%';
+  document.getElementById('q-text').textContent=q.q;
+  document.getElementById('prev-btn').style.opacity=current===0?'0.3':'1';
+  document.getElementById('auto-hint').style.opacity='1';
+  const body=document.getElementById('q-body');
+  body.style.opacity='1';
+  const opts=document.getElementById('opts');
+  opts.innerHTML='';
+  q.opts.forEach((opt,i)=>{
+    const btn=document.createElement('button');
+    btn.className='opt';
+    const prevW=answers[q.id];
+    const isSelected=prevW&&JSON.stringify(prevW)===JSON.stringify(opt.w)&&Object.keys(opt.w).every(k=>prevW[k]===opt.w[k]);
+    if(isSelected)btn.classList.add('selected');
+    btn.innerHTML='<span class="opt-radio">'+(isSelected?'●':'○')+'</span>'+opt.t;
+    btn.onclick=function(){selectOpt(opt,btn,q);};
+    opts.appendChild(btn);
+  });
+}
+
+function selectOpt(opt,btn,q){
+  if(autoTimer)clearTimeout(autoTimer);
+  document.querySelectorAll('.opt').forEach(b=>{b.classList.remove('selected');b.querySelector('.opt-radio').textContent='○';});
+  btn.classList.add('selected');
+  btn.querySelector('.opt-radio').textContent='●';
+  document.getElementById('auto-hint').style.opacity='0';
+  answers[q.id]=opt.w;
+  autoTimer=setTimeout(()=>{
+    if(current===QUESTIONS.length-1){showResults();}
+    else{current++;renderQ();}
+  },80);
+}
+
+function prevQ(){
+  if(current===0)return;
+  if(autoTimer)clearTimeout(autoTimer);
+  const body=document.getElementById('q-body');
+  body.style.opacity='0';
+  setTimeout(()=>{current--;renderQ();},200);
+}
+
+function generateReason(prefs,city){
+  const dimInfo={
+    pace:{name:"生活节奏",high:"快节奏高效的都市生活",low:"悠闲舒缓的慢生活节奏",cityHigh:function(c){return c.name+'的城市节奏充满活力与效率，快节奏的都市氛围让每一天都充实而有意义，这与你追求高效生活的内心需求高度契合';},cityLow:function(c){return c.name+'的生活节奏舒缓惬意，没有大城市的紧迫与焦虑，这里的人们懂得享受生活中的每一个悠闲时刻，完美契合你内心对慢生活的向往';}},
+    food:{name:"美食文化",high:"丰富多元的美食体验",low:"清淡简约的饮食风格",cityHigh:function(c){return c.name+'的美食文化极为丰富，从街头小吃到地方名菜应有尽有，对于热爱美食的你来说，这里就是味蕾的天堂，每天都能发现新的味觉惊喜';},cityLow:function(c){return c.name+'的饮食风格清新自然，注重食材本味，不追求浓烈刺激，这种朴素的饮食哲学与你对健康简约生活的追求不谋而合';}},
+    history:{name:"文化历史",high:"深厚的历史文化底蕴",low:"现代化的城市氛围",cityHigh:function(c){return c.name+'拥有深厚的历史文化积淀，古迹遗存与人文故事遍布城市的每个角落，对于热爱历史文化的你而言，这里是一座取之不尽的精神宝库';},cityLow:function(c){return c.name+'是一座充满现代气息的城市，没有过多历史包袱的束缚，轻装上阵的城市气质与你追求创新突破的精神完美呼应';}},
+    tech:{name:"科技创新",high:"前沿的科技创新环境",low:"传统质朴的生活方式",cityHigh:function(c){return c.name+'的科技创新氛围浓厚，高新技术产业蓬勃发展，对于追求科技前沿的你来说，这里提供了广阔的职业发展空间和创新创业机遇';},cityLow:function(c){return c.name+'保留着传统质朴的生活方式，远离科技的喧嚣与内卷，这种返璞归真的城市气质恰好满足了你对简单纯粹生活的渴望';}},
+    nature:{name:"自然环境",high:"亲近自然的生态环境",low:"繁华便利的都市配套",cityHigh:function(c){return c.name+'的自然生态环境优越，山水风光触手可及，对于热爱自然的你来说，推窗见绿、出门见景的生活正是你梦寐以求的理想状态';},cityLow:function(c){return c.name+'的城市配套设施完善便利，虽然自然资源不算突出，但高度发达的都市功能满足了你对便捷高效生活的核心需求';}},
+    nightlife:{name:"夜生活",high:"丰富精彩的夜生活",low:"安静祥和的夜晚氛围",cityHigh:function(c){return c.name+'的夜生活丰富多彩，夜幕降临后城市焕发出别样的魅力，酒吧、夜市、演出让每个夜晚都充满可能，这与你热爱社交娱乐的性格完美匹配';},cityLow:function(c){return c.name+'的夜晚宁静祥和，没有嘈杂的夜生活打扰，安静的夜晚让你可以沉浸在自己的世界里，享受独处与思考的美好时光';}},
+    shopping:{name:"购物消费",high:"丰富的购物消费选择",low:"简约理性的消费观念",cityHigh:function(c){return c.name+'的商业消费环境成熟多元，从高端商场到特色市集应有尽有，对于享受购物乐趣的你来说，这里能充分满足你的消费体验需求';},cityLow:function(c){return c.name+'的消费环境简约务实，没有过度商业化的浮躁，这种理性的消费氛围与你追求简单生活、注重内在价值的理念高度一致';}},
+    climate:{name:"气候条件",high:"温暖宜人的气候环境",low:"四季分明的气候体验",cityHigh:function(c){return c.name+'的气候温暖宜人，全年舒适度高，对于重视气候条件的你来说，这里的天气让你每天都能保持愉悦的心情和充沛的精力';},cityLow:function(c){return c.name+'的气候四季分明，虽然不算完美，但季节更替带来的丰富体验也是生活的一种馈赠，你能在不同季节感受不同的城市魅力';}},
+    housing:{name:"居住成本",high:"合理的居住生活成本",low:"高品质的城市资源",cityHigh:function(c){return c.name+'的居住成本相对合理，房价与生活开支在同级别城市中具有明显优势，让你可以用更少的经济压力换取更高品质的生活体验';},cityLow:function(c){return c.name+'虽然居住成本较高，但丰富的城市资源和发展机遇意味着更高的回报潜力，对于追求事业发展的你来说，这是值得的投资';}},
+    greenery:{name:"城市绿化",high:"优美的城市绿化环境",low:"高效的城市空间利用",cityHigh:function(c){return c.name+'的城市绿化覆盖率高，公园绿地遍布其间，推窗见绿的生活环境让你每天都能呼吸到清新的空气，享受绿意盎然的都市生活';},cityLow:function(c){return c.name+'的城市空间利用高效紧凑，虽然绿化面积有限，但完善的城市功能和便利的生活配套弥补了这一不足，让你的日常生活高效而便捷';}}
+  };
+  const dims=Object.keys(dimInfo);
+  const userTop=dims.map(function(d){return {dim:d,val:prefs[d]||50,diff:Math.abs((prefs[d]||50)-50)};}).sort(function(a,b){return b.diff-a.diff;}).slice(0,3);
+  const matchTop=dims.map(function(d){return {dim:d,match:100-Math.abs((prefs[d]||50)-(city.p[d]||50))};}).sort(function(a,b){return b.match-a.match;}).slice(0,3);
+  const usedDims=[];
+  const seen={};
+  userTop.forEach(function(u){if(!seen[u.dim]){seen[u.dim]=true;usedDims.push(u.dim);}});
+  matchTop.forEach(function(m){if(!seen[m.dim]&&usedDims.length<4){seen[m.dim]=true;usedDims.push(m.dim);}});
+  var reason='根据你的答题偏好，'+city.name+'与你的生活理念高度契合。';
+  usedDims.slice(0,3).forEach(function(d){
+    var info=dimInfo[d];
+    var userVal=prefs[d]||50;
+    var cityVal=city.p[d]||50;
+    if(userVal>=55&&cityVal>=55){reason+=info.cityHigh(city)+'。';}
+    else if(userVal<45&&cityVal<45){reason+=info.cityLow(city)+'。';}
+    else if(Math.abs(userVal-cityVal)<=20){reason+='在'+info.name+'方面，'+city.name+'与你的期望值十分接近，能够很好地满足你的生活需求。';}
+  });
+  reason+='综合来看，'+city.name+'是最适合你当前生活追求的城市。';
+  return reason;
+}
+
+function generateOtherReason(prefs,city){
+  var dimLabelsShort={pace:"生活节奏",food:"美食文化",history:"文化历史",tech:"科技创新",nature:"自然环境",nightlife:"夜生活",shopping:"购物消费",climate:"气候条件",housing:"居住成本",greenery:"城市绿化"};
+  var dims=Object.keys(dimLabelsShort);
+  var matchDims=dims.map(function(d){return {dim:d,label:dimLabelsShort[d],match:100-Math.abs((prefs[d]||50)-(city.p[d]||50))};}).sort(function(a,b){return b.match-a.match;});
+  var topDims=matchDims.slice(0,3).map(function(m){return m.label;});
+  return city.name+'在'+topDims.join('、')+'等方面与你的偏好高度吻合，匹配度达到'+city.score+'%。'+city.desc;
+}
+
+function showResults(){
+  var prefs=buildPrefs(answers);
+  var ranked=CITIES.map(function(c){var o={};for(var k in c)o[k]=c[k];o.score=calcMatch(prefs,c);return o;}).sort(function(a,b){return b.score-a.score;});
+  var top=ranked[0];
+  var others=ranked.slice(1,7);
+  document.getElementById('r-pct').textContent=top.score+'%';
+  document.getElementById('r-city').textContent=top.name;
+  document.getElementById('r-prov').textContent=top.province;
+  document.getElementById('r-tags').innerHTML=top.tags.map(function(t){return '<span class="tag-chip">'+t+'</span>';}).join('');
+  document.getElementById('r-kws').innerHTML=top.kw.map(function(k){return '<span class="kw-chip">'+k+'</span>';}).join('');
+  document.getElementById('r-desc').textContent=generateReason(prefs,top);
+  var dimLabels={pace:"生活节奏",food:"美食多元",history:"文化历史",tech:"科技创新",nature:"自然环境",nightlife:"夜生活",shopping:"购物消费",climate:"气候偏好",housing:"居住成本",greenery:"城市绿化"};
+  var dg=document.getElementById('dim-grid');
+  dg.innerHTML='';
+  Object.keys(dimLabels).forEach(function(k){
+    var label=dimLabels[k];
+    var val=prefs[k];
+    dg.innerHTML+='<div class="dim-row"><span class="dim-label">'+label+'</span><div class="dim-track"><div class="dim-bar" style="width:'+val+'%"></div></div><span class="dim-val">'+val+'</span></div>';
+  });
+  var og=document.getElementById('others-grid');
+  og.innerHTML='';
+  others.forEach(function(c){
+    og.innerHTML+='<div class="other-card"><div class="other-top"><div><span>📍</span><span class="other-name">'+c.name+'</span><span class="other-prov"> · '+c.province+'</span></div><span class="other-score">'+c.score+'%</span></div><div class="tag-row">'+c.tags.map(function(t){return '<span class="tag-chip-sm">'+t+'</span>';}).join('')+'</div><div class="tag-row">'+c.kw.map(function(k){return '<span class="kw-chip-sm">'+k+'</span>';}).join('')+'</div><p class="other-desc">'+generateOtherReason(prefs,c)+'</p></div>';
+  });
+  showPage('page-result');
+}
+
+function resetQuiz(){showPage('page-intro');}
+</script>
+
+</body></html>
